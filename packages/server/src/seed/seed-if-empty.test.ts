@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { openTestDatabase, type DatabaseHandle } from '../db/connection';
 import { createFixture } from '../testing/fixture';
 import { seedIfEmpty } from './seed-if-empty';
