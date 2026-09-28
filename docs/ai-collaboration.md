@@ -13,7 +13,7 @@ was wrong.
 The order of work was deliberate, and it is visible in the commit history:
 
 1. **Requirements first, in prose.** The one-page requirements document is the first
-   commit, before any code. Writing down what was *out* of scope and why did more to shape
+   commit, before any code. Writing down what was _out_ of scope and why did more to shape
    the build than anything else — it is the reason there is no half-finished CSV importer
    or approval workflow in here.
 2. **Decisions before implementation.** Six ADRs, committed second. Money as integer minor
@@ -31,22 +31,22 @@ The order of work was deliberate, and it is visible in the commit history:
 This is the useful part. In every case below the mistake was caught by something
 mechanical — a test, a constraint, a profiler — rather than by re-reading the code.
 
-| What went wrong | What caught it | Commit |
-|---|---|---|
-| The generated org chart had VPs in a reporting cycle and nobody at the top. Plausible-looking code, structurally broken. | A test that walks every reporting chain looking for a repeat. It would never have shown up by inspection at 10,000 rows. | `feat(server): seed script` |
-| `MAX(value WHERE cume_dist <= p)` looks like a percentile and is off by one position for odd-sized groups — five salaries returns the second, not the third. | Working the definition through on paper with n=4 and n=5 before writing the SQL. | `docs: correct the percentile SQL in ADR-0006` |
-| The test fixture's `INSERT` had `gender` and `status` swapped — fourteen positional columns in a row. | A `CHECK` constraint in the schema. Rewritten with named parameters rather than reordered, because the positional form is the bug. | `feat(server): employee repository` |
-| A bound numeric parameter reaches SQLite as REAL, so `(x - ?) / ?` did floating-point division and produced fractional histogram buckets — silently dropping nine of eleven employees from the chart. | A test asserting the buckets sum to the headcount. | `feat(server): analytics engine` |
-| A CSV test asserted a field was quoted. It passed — but the field contained no comma, so it proved nothing. | Reading the failure output properly instead of just making it green. Replaced with a field that genuinely contains a comma, plus unit tests for the escaper. | `feat(server): HTTP API` |
-| `UNIQUE (employee_id, effective_from)` seemed obviously right, and made a same-day correction impossible — contradicting the append-only model in ADR-0004. | Writing the tie-break test and noticing it could only pass by cheating. | `feat(server): database schema` |
-| ADR-0004 claimed the current-salary query took "~11 ms". Written before measuring. The real figure was 33 ms, which is why that design was later replaced. | Running the benchmark. The number was invented, plausible, and wrong. | `docs: correct architecture and ADR-0004` |
-| The `current_compensation` view was correct and 10–50× slower than it needed to be. No amount of reading the code would have shown this. | Profiling with `EXPLAIN QUERY PLAN` and a head-to-head timing harness. | `perf(server): 8-56x faster reads` |
+| What went wrong                                                                                                                                                                                       | What caught it                                                                                                                                               | Commit                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------- |
+| The generated org chart had VPs in a reporting cycle and nobody at the top. Plausible-looking code, structurally broken.                                                                              | A test that walks every reporting chain looking for a repeat. It would never have shown up by inspection at 10,000 rows.                                     | `feat(server): seed script`                    |
+| `MAX(value WHERE cume_dist <= p)` looks like a percentile and is off by one position for odd-sized groups — five salaries returns the second, not the third.                                          | Working the definition through on paper with n=4 and n=5 before writing the SQL.                                                                             | `docs: correct the percentile SQL in ADR-0006` |
+| The test fixture's `INSERT` had `gender` and `status` swapped — fourteen positional columns in a row.                                                                                                 | A `CHECK` constraint in the schema. Rewritten with named parameters rather than reordered, because the positional form is the bug.                           | `feat(server): employee repository`            |
+| A bound numeric parameter reaches SQLite as REAL, so `(x - ?) / ?` did floating-point division and produced fractional histogram buckets — silently dropping nine of eleven employees from the chart. | A test asserting the buckets sum to the headcount.                                                                                                           | `feat(server): analytics engine`               |
+| A CSV test asserted a field was quoted. It passed — but the field contained no comma, so it proved nothing.                                                                                           | Reading the failure output properly instead of just making it green. Replaced with a field that genuinely contains a comma, plus unit tests for the escaper. | `feat(server): HTTP API`                       |
+| `UNIQUE (employee_id, effective_from)` seemed obviously right, and made a same-day correction impossible — contradicting the append-only model in ADR-0004.                                           | Writing the tie-break test and noticing it could only pass by cheating.                                                                                      | `feat(server): database schema`                |
+| ADR-0004 claimed the current-salary query took "~11 ms". Written before measuring. The real figure was 33 ms, which is why that design was later replaced.                                            | Running the benchmark. The number was invented, plausible, and wrong.                                                                                        | `docs: correct architecture and ADR-0004`      |
+| The `current_compensation` view was correct and 10–50× slower than it needed to be. No amount of reading the code would have shown this.                                                              | Profiling with `EXPLAIN QUERY PLAN` and a head-to-head timing harness.                                                                                       | `perf(server): 8-56x faster reads`             |
 
 **The pattern.** AI is fluent, and fluent code reads as correct. Every one of these was
 caught by something that does not care how the code reads: a constraint that rejects bad
 data, a test that walks the structure, a profiler that times the real thing. The practice
-that mattered was not reviewing harder — it was arranging for mistakes to be *caught
-mechanically*, then actually reading what the mechanism said.
+that mattered was not reviewing harder — it was arranging for mistakes to be _caught
+mechanically_, then actually reading what the mechanism said.
 
 The last two are worth separating out. Both were places where the code was **correct** and
 still wrong — one slow, one carrying a fabricated number. Correctness review would have

@@ -8,9 +8,12 @@ interface StatCardProps {
   hint?: string;
   detail?: ReactNode;
   loading?: boolean;
+  /** Lets a test address this card's value specifically — several cards can show the
+   *  same figure, and a test that cannot say which one it means is not asserting much. */
+  testId?: string;
 }
 
-export function StatCard({ label, value, hint, detail, loading }: StatCardProps) {
+export function StatCard({ label, value, hint, detail, loading, testId }: StatCardProps) {
   return (
     <Card withBorder padding="md" radius="md" h="100%">
       <Group gap={6} mb={4} wrap="nowrap">
@@ -26,7 +29,7 @@ export function StatCard({ label, value, hint, detail, loading }: StatCardProps)
       {loading ? (
         <Skeleton height={28} width="70%" />
       ) : (
-        <Text fz={26} fw={600} lh={1.2}>
+        <Text fz={26} fw={600} lh={1.2} data-testid={testId}>
           {value}
         </Text>
       )}

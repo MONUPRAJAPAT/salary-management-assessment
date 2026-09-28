@@ -42,7 +42,7 @@ rather than an application rewrite.
 
 **Cost:** more SQL to write by hand; no migration framework in the box.
 
-**Why anyway:** this product's value *is* the SQL — percentiles, grouped medians, band
+**Why anyway:** this product's value _is_ the SQL — percentiles, grouped medians, band
 comparison, a running payroll total. An ORM would express every one of those through an
 escape hatch, so the abstraction would cost type-safety-shaped ceremony and buy nothing on
 exactly the queries that matter. Kysely keeps full inference over the schema while leaving
@@ -53,7 +53,7 @@ the SQL visible and reviewable.
 **Cost:** a fraction of a millisecond per response, and a second place the contract is
 checked.
 
-**Why anyway:** both sides parse the *same* schema object, so it is not a second definition —
+**Why anyway:** both sides parse the _same_ schema object, so it is not a second definition —
 it is the same definition enforced twice. A contract that has drifted fails at the network
 boundary with a readable message instead of three components deep as `undefined is not an
 object`.
@@ -74,8 +74,8 @@ wearing an implementation detail's clothing.
 
 **Why anyway:** "do we have a pay gap in Sales?" cannot be answered without it, and in
 several of ACME's jurisdictions reporting on it is a legal requirement. Mitigated by
-aggregate-only exposure, suppression of any group under five people enforced *inside the
-SQL*, and no ability to filter or sort the directory by it. See ADR-0005.
+aggregate-only exposure, suppression of any group under five people enforced _inside the
+SQL_, and no ability to filter or sort the directory by it. See ADR-0005.
 
 ### A deliberately modelled pay gap in the seed data
 

@@ -6,8 +6,8 @@ one persona: the HR Manager who currently does this in spreadsheets.
 Two jobs, weighted equally:
 
 - **A system of record** — salary data that is correct, auditable, and safe to change.
-- **An answer engine** — *"what do we pay a Senior Engineer in Germany versus India?"*,
-  *"is anyone paid below band?"*, *"do we have a pay gap in Sales?"* — answered in seconds.
+- **An answer engine** — _"what do we pay a Senior Engineer in Germany versus India?"_,
+  _"is anyone paid below band?"_, _"do we have a pay gap in Sales?"_ — answered in seconds.
 
 ---
 
@@ -36,21 +36,21 @@ npm start        # one process serving the API and the UI on :4000
 
 ### The rest of the commands
 
-| Command | |
-|---|---|
-| `npm test` | all 200 tests, three packages, ~2.5s |
-| `npm run test:watch` | watch mode |
-| `npm run test:coverage` | coverage report |
-| `npm run verify` | format check, lint, typecheck and tests — what CI would run |
-| `npm run benchmark --workspace @acme/server` | reproduces the numbers in `docs/performance.md` |
+| Command                                      |                                                             |
+| -------------------------------------------- | ----------------------------------------------------------- |
+| `npm test`                                   | all 200 tests, three packages, ~2.5s                        |
+| `npm run test:watch`                         | watch mode                                                  |
+| `npm run test:coverage`                      | coverage report                                             |
+| `npm run verify`                             | format check, lint, typecheck and tests — what CI would run |
+| `npm run benchmark --workspace @acme/server` | reproduces the numbers in `docs/performance.md`             |
 
 ---
 
 ## What it does
 
 **Employee directory** — server-side search, six filters, seven sorts and pagination over
-10,000 records. Filter state lives in the URL, so *"everyone in India below band, worst
-compa-ratio first"* is a link you can bookmark or send to someone. Any filtered view exports
+10,000 records. Filter state lives in the URL, so _"everyone in India below band, worst
+compa-ratio first"_ is a link you can bookmark or send to someone. Any filtered view exports
 to CSV.
 
 **Employee profile** — current pay in local currency and in USD, position drawn to scale
@@ -90,19 +90,19 @@ Three modelling decisions carry the design:
    anywhere near a salary. JPY's zero exponent is handled in the one place it belongs.
 2. **Compensation is effective-dated and append-only.** `employees` has no salary column; an
    employee's pay on a date is the latest record effective on or before it.
-3. **Every aggregate is computed by SQLite**, with currency normalised *before* grouping.
+3. **Every aggregate is computed by SQLite**, with currency normalised _before_ grouping.
 
 ### Performance
 
 The requirements committed to p95 under 200 ms at this scale. Measured, over HTTP, against
 the real seeded database:
 
-| | p50 | p95 |
-|---|---:|---:|
-| Directory page, 3 filters + sort | 2.6 ms | 2.9 ms |
-| Employee profile + full history | 0.6 ms | 1.1 ms |
-| Analytics overview | 52.8 ms | 53.3 ms |
-| Payroll trend, 24 months | 66.5 ms | 69.7 ms |
+|                                  |     p50 |     p95 |
+| -------------------------------- | ------: | ------: |
+| Directory page, 3 filters + sort |  2.6 ms |  2.9 ms |
+| Employee profile + full history  |  0.6 ms |  1.1 ms |
+| Analytics overview               | 52.8 ms | 53.3 ms |
+| Payroll trend, 24 months         | 66.5 ms | 69.7 ms |
 
 Getting there took three specific fixes, each found by profiling rather than by reading the
 code — the largest was 56×. `docs/performance.md` has the before-and-after and the method.
@@ -114,7 +114,7 @@ test builds its own in-memory database.
 
 The integration fixture is **twelve hand-written employees** whose medians you can verify by
 reading the table, with exchange rates chosen to be exact and memorable ($1 = ₹80 = ¥160).
-When a test says *"the median Engineering salary is $100,000"*, that is checkable by eye —
+When a test says _"the median Engineering salary is $100,000"_, that is checkable by eye —
 the difference between a test that documents behaviour and one that merely detects change.
 
 Two tests exist specifically to stop duplicated definitions drifting: one asserts the
@@ -125,15 +125,15 @@ two statements of "current compensation" select the same record for every employ
 
 ## Documentation
 
-| | |
-|---|---|
-| [`docs/requirements.md`](docs/requirements.md) | The one-pager, written before any code — including what is deliberately left out |
-| [`docs/architecture.md`](docs/architecture.md) | Diagrams, layering rules, data model, request path |
-| [`docs/decisions/`](docs/decisions/) | Six ADRs for the choices that shape everything downstream |
-| [`docs/performance.md`](docs/performance.md) | Measurements, the three optimisations, and what was left alone |
-| [`docs/trade-offs.md`](docs/trade-offs.md) | The decisions with real alternatives, and what each costs |
-| [`docs/ai-collaboration.md`](docs/ai-collaboration.md) | How AI was used — weighted towards where its first answer was wrong |
-| [`docs/deployment.md`](docs/deployment.md) | Running it as one container or one process |
+|                                                        |                                                                                  |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| [`docs/requirements.md`](docs/requirements.md)         | The one-pager, written before any code — including what is deliberately left out |
+| [`docs/architecture.md`](docs/architecture.md)         | Diagrams, layering rules, data model, request path                               |
+| [`docs/decisions/`](docs/decisions/)                   | Six ADRs for the choices that shape everything downstream                        |
+| [`docs/performance.md`](docs/performance.md)           | Measurements, the three optimisations, and what was left alone                   |
+| [`docs/trade-offs.md`](docs/trade-offs.md)             | The decisions with real alternatives, and what each costs                        |
+| [`docs/ai-collaboration.md`](docs/ai-collaboration.md) | How AI was used — weighted towards where its first answer was wrong              |
+| [`docs/deployment.md`](docs/deployment.md)             | Running it as one container or one process                                       |
 
 ---
 

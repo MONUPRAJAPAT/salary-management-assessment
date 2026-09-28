@@ -12,23 +12,23 @@ can be reproduced rather than taken on trust.
 
 ## 1. Where it ended up
 
-| Endpoint | p50 | p95 | Payload |
-|---|---:|---:|---:|
-| Directory, first page | 6.8 ms | 8.6 ms | 11 KB |
-| Directory, page 200 | 11.4 ms | 11.8 ms | 12 KB |
-| Directory, search | 5.7 ms | 6.0 ms | 11 KB |
-| Directory, 3 filters + salary sort | 2.6 ms | 2.9 ms | 12 KB |
-| Directory, everyone below band | 8.6 ms | 9.0 ms | 12 KB |
-| Employee profile + full history | 0.6 ms | 1.1 ms | 2 KB |
-| Reference data | 0.3 ms | 0.4 ms | 1 KB |
-| Analytics: overview | 52.8 ms | 53.3 ms | <1 KB |
-| Analytics: median by country | 22.6 ms | 25.3 ms | 5 KB |
-| Analytics: median by level | 22.5 ms | 23.0 ms | 5 KB |
-| Analytics: pay gap | 45.5 ms | 48.7 ms | 7 KB |
-| Analytics: band health | 54.0 ms | 54.7 ms | 19 KB |
-| Analytics: distribution | 22.2 ms | 22.6 ms | 1 KB |
-| Analytics: payroll trend, 24 months | 66.5 ms | 69.7 ms | 2 KB |
-| CSV export, whole organisation | 62.3 ms | 65.3 ms | 1.7 MB |
+| Endpoint                            |     p50 |     p95 | Payload |
+| ----------------------------------- | ------: | ------: | ------: |
+| Directory, first page               |  6.8 ms |  8.6 ms |   11 KB |
+| Directory, page 200                 | 11.4 ms | 11.8 ms |   12 KB |
+| Directory, search                   |  5.7 ms |  6.0 ms |   11 KB |
+| Directory, 3 filters + salary sort  |  2.6 ms |  2.9 ms |   12 KB |
+| Directory, everyone below band      |  8.6 ms |  9.0 ms |   12 KB |
+| Employee profile + full history     |  0.6 ms |  1.1 ms |    2 KB |
+| Reference data                      |  0.3 ms |  0.4 ms |    1 KB |
+| Analytics: overview                 | 52.8 ms | 53.3 ms |   <1 KB |
+| Analytics: median by country        | 22.6 ms | 25.3 ms |    5 KB |
+| Analytics: median by level          | 22.5 ms | 23.0 ms |    5 KB |
+| Analytics: pay gap                  | 45.5 ms | 48.7 ms |    7 KB |
+| Analytics: band health              | 54.0 ms | 54.7 ms |   19 KB |
+| Analytics: distribution             | 22.2 ms | 22.6 ms |    1 KB |
+| Analytics: payroll trend, 24 months | 66.5 ms | 69.7 ms |    2 KB |
+| CSV export, whole organisation      | 62.3 ms | 65.3 ms |  1.7 MB |
 
 The requirements document committed to **p95 under 200 ms**. The slowest endpoint is the
 24-month payroll trend at 70 ms.
@@ -38,14 +38,14 @@ The requirements document committed to **p95 under 200 ms**. The slowest endpoin
 The first working version missed that target on four endpoints. Profiling — not reading the
 code and guessing — found three separate causes.
 
-| Endpoint | Before | After | |
-|---|---:|---:|---:|
-| Directory, first page | 77.1 ms | 6.8 ms | 11× |
-| Directory, 3 filters + sort | 74.4 ms | 2.6 ms | 29× |
-| Employee profile | 33.6 ms | 0.6 ms | 56× |
-| Analytics: overview | 459.6 ms | 52.8 ms | 8.7× |
-| Analytics: band health | 210.4 ms | 54.0 ms | 3.9× |
-| Analytics: payroll trend | 508.7 ms | 66.5 ms | 7.6× |
+| Endpoint                    |   Before |   After |      |
+| --------------------------- | -------: | ------: | ---: |
+| Directory, first page       |  77.1 ms |  6.8 ms |  11× |
+| Directory, 3 filters + sort |  74.4 ms |  2.6 ms |  29× |
+| Employee profile            |  33.6 ms |  0.6 ms |  56× |
+| Analytics: overview         | 459.6 ms | 52.8 ms | 8.7× |
+| Analytics: band health      | 210.4 ms | 54.0 ms | 3.9× |
+| Analytics: payroll trend    | 508.7 ms | 66.5 ms | 7.6× |
 
 ### Cause 1 — a view that ranked everything to answer anything
 
@@ -56,31 +56,31 @@ aggregating the whole company, and filtering to one country saved nothing at all
 
 Measured head to head:
 
-| | View (`ROW_NUMBER`) | Correlated `LIMIT 1` |
-|---|---:|---:|
-| Whole organisation, 10,000 rows | 33.1 ms | **5.5 ms** |
-| Filtered to India, 2,600 rows | 32.7 ms | **1.5 ms** |
-| One directory page, 25 rows | 32.8 ms | **~0 ms** |
+|                                 | View (`ROW_NUMBER`) | Correlated `LIMIT 1` |
+| ------------------------------- | ------------------: | -------------------: |
+| Whole organisation, 10,000 rows |             33.1 ms |           **5.5 ms** |
+| Filtered to India, 2,600 rows   |             32.7 ms |           **1.5 ms** |
+| One directory page, 25 rows     |             32.8 ms |            **~0 ms** |
 
-The correlated form is an index seek per *matching* employee against
+The correlated form is an index seek per _matching_ employee against
 `idx_comp_employee_effective`, so it gets cheaper as the query narrows — which is what the
 directory does all day. The view is kept in the schema as the readable statement of the
 rule, and `current-compensation.test.ts` asserts the two select the same record for every
 employee, so they cannot drift apart.
 
 This also required the date to become a parameter instead of `DATE('now')` inside SQL.
-That was a performance change that turned out to be a feature: *"what did she earn in
-2021?"* is now a first-class query.
+That was a performance change that turned out to be a feature: _"what did she earn in
+2021?"_ is now a first-class query.
 
 ### Cause 2 — a CTE evaluated once per reference
 
 The overview reads seven figures from the same base set. SQLite inlined the CTE and
 re-evaluated it seven times:
 
-| | |
-|---|---:|
-| `WITH base AS (...)`, one reference | 40.9 ms |
-| `WITH base AS (...)`, seven references | 358.6 ms |
+|                                                     |             |
+| --------------------------------------------------- | ----------: |
+| `WITH base AS (...)`, one reference                 |     40.9 ms |
+| `WITH base AS (...)`, seven references              |    358.6 ms |
 | `WITH base AS MATERIALIZED (...)`, seven references | **46.9 ms** |
 
 One keyword. The hint is applied only where the CTE is genuinely scanned more than once;
@@ -126,13 +126,13 @@ Without it the schema's references are documentation, not constraints.
 
 ## 5. Front end
 
-| | Raw | Gzipped |
-|---|---:|---:|
-| Application code | 158 KB | 42 KB |
-| Mantine | 481 KB | 150 KB |
-| Charts (Recharts) | 406 KB | 112 KB |
-| React + Router | 21 KB | 8 KB |
-| CSS | 218 KB | 32 KB |
+|                   |    Raw | Gzipped |
+| ----------------- | -----: | ------: |
+| Application code  | 158 KB |   42 KB |
+| Mantine           | 481 KB |  150 KB |
+| Charts (Recharts) | 406 KB |  112 KB |
+| React + Router    |  21 KB |    8 KB |
+| CSS               | 218 KB |   32 KB |
 
 Vendor code is split into three chunks so that an application deploy does not invalidate
 Mantine and Recharts in everyone's browser cache. Route-level code splitting would drop the

@@ -117,7 +117,7 @@ one page. Both forms are backed by `idx_comp_employee_effective`.
 Two statements of one rule can drift, so `current-compensation.test.ts` asserts that they
 select the same record for every employee in the fixture. Taking the date as a parameter
 rather than calling `DATE('now')` inside SQL is what made the rewrite possible — and it
-makes *"what did she earn in 2021?"* a first-class query rather than a missing feature.
+makes _"what did she earn in 2021?"_ a first-class query rather than a missing feature.
 
 See `docs/performance.md` for the full before-and-after.
 

@@ -11,12 +11,12 @@ service, and no reverse proxy to get right.
    wrong on a platform with an ephemeral filesystem: without a mounted disk the database is
    silently recreated empty on every redeploy.
 
-| Variable | Default | |
-|---|---|---|
-| `PORT` | `4000` | |
-| `DATABASE_PATH` | `data/salary.sqlite` | must be on a persistent volume |
-| `WEB_DIST_PATH` | `../web/dist` | the built UI; ignored if the path does not exist |
-| `NODE_ENV` | `development` | |
+| Variable        | Default              |                                                  |
+| --------------- | -------------------- | ------------------------------------------------ |
+| `PORT`          | `4000`               |                                                  |
+| `DATABASE_PATH` | `data/salary.sqlite` | must be on a persistent volume                   |
+| `WEB_DIST_PATH` | `../web/dist`        | the built UI; ignored if the path does not exist |
+| `NODE_ENV`      | `development`        |                                                  |
 
 `GET /api/health` is the health-check endpoint.
 

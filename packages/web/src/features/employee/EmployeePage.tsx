@@ -100,6 +100,7 @@ export function EmployeePage() {
             <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="md">
               <StatCard
                 label="Current salary"
+                testId="current-salary"
                 value={money(employee.salary)}
                 detail={
                   employee.salaryBase
