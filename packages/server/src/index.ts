@@ -3,11 +3,22 @@ import { dirname } from 'node:path';
 import { loadConfig } from './config';
 import { openDatabase } from './db/connection';
 import { createApp } from './http/app';
+import { seedIfEmpty } from './seed/seed-if-empty';
 
 const config = loadConfig();
 mkdirSync(dirname(config.databasePath), { recursive: true });
 
 const handle = openDatabase({ location: config.databasePath });
+
+// Only ever runs when SEED_ON_BOOT is set *and* the database is empty.
+const seeded = seedIfEmpty(handle, { enabled: config.seedOnBoot });
+if (seeded) {
+  console.info(
+    `  Empty database seeded on boot: ${seeded.employees.toLocaleString()} employees, ` +
+      `${seeded.compensationRecords.toLocaleString()} compensation records in ${seeded.durationMs} ms.`,
+  );
+}
+
 const app = createApp({ db: handle.db, webDistPath: config.webDistPath });
 
 const server = app.listen(config.port, () => {
