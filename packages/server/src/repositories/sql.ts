@@ -21,23 +21,23 @@ import { LEVELS, LEVEL_METADATA } from '@acme/shared';
  * Using SQLite's REAL type instead would be simpler and wrong: it would put floating
  * point back into the one place ADR-0003 exists to keep it out of.
  */
-export const CURRENT_COMPENSATION_DOC = `
-  An employee's pay on a date is the latest compensation record effective on or before
-  it. This is that rule, as a join condition.
-
-  It replaced a view built on ROW_NUMBER() OVER (PARTITION BY employee_id ...), which was
-  correct but had to rank all 40,574 records before answering any question — 33 ms even
-  to show 25 names, and the same 33 ms when filtered to one country. As a correlated
-  lookup it is an index seek per matching employee instead: 5.5 ms for the whole
-  organisation, 1.5 ms filtered to India, and effectively free for one page.
-
-  The view still exists in the schema as the readable statement of the rule, and a test
-  asserts the two agree on every employee in the fixture, so they cannot drift.
-`;
+/*
+ * An employee's pay on a date is the latest compensation record effective on or before
+ * it. The two fragments below are that rule.
+ *
+ * They replaced a view built on ROW_NUMBER() OVER (PARTITION BY employee_id ...), which
+ * was correct but had to rank all 40,574 records before answering any question — 33 ms
+ * even to show 25 names, and the same 33 ms when filtered to one country. As a correlated
+ * lookup it is an index seek per matching employee instead: 5.5 ms for the whole
+ * organisation, 1.5 ms filtered to India, and effectively free for one page.
+ *
+ * The view still exists in the schema as the readable statement of the rule, and a test
+ * asserts the two agree on every employee in the fixture, so they cannot drift.
+ */
 
 /**
  * The join condition that resolves current compensation for the employee aliased 'e',
- * against a compensation_records alias 'cc'. See CURRENT_COMPENSATION_DOC.
+ * against a compensation_records alias 'cc'. See the note above.
  */
 export const currentCompensationOn = (asOf: string) => sql<SqlBool>`
   cc.id = (

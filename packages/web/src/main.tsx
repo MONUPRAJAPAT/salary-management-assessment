@@ -33,8 +33,7 @@ createRoot(container).render(
     <MantineProvider theme={theme} defaultColorScheme="auto">
       <Notifications position="top-right" />
       <QueryClientProvider client={queryClient}>
-        {/* Opt in to the v7 behaviours now, so the upgrade is not a behaviour change. */}
-        <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <BrowserRouter>
           <App />
         </BrowserRouter>
       </QueryClientProvider>

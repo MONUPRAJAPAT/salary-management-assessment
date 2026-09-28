@@ -6,14 +6,7 @@ import { useDirectoryFilters } from './useDirectoryFilters';
 
 const wrapper = (initial: string) =>
   function Wrapper({ children }: { children: ReactNode }) {
-    return (
-      <MemoryRouter
-        initialEntries={[initial]}
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        {children}
-      </MemoryRouter>
-    );
+    return <MemoryRouter initialEntries={[initial]}>{children}</MemoryRouter>;
   };
 
 const setup = (initial = '/employees') =>

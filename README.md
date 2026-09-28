@@ -38,7 +38,7 @@ npm start        # one process serving the API and the UI on :4000
 
 | Command                                      |                                                             |
 | -------------------------------------------- | ----------------------------------------------------------- |
-| `npm test`                                   | all 218 tests, three packages, ~2.6s                        |
+| `npm test`                                   | all 240 tests, three packages, ~2.6s                        |
 | `npm run test:watch`                         | watch mode                                                  |
 | `npm run test:coverage`                      | coverage report                                             |
 | `npm run verify`                             | format check, lint, typecheck and tests — what CI would run |
@@ -109,7 +109,7 @@ code — the largest was 56×. `docs/performance.md` has the before-and-after an
 
 ### Tests
 
-218 tests in about 2.6 seconds. No network, no clock dependence, no shared state — every
+240 tests in about 2.6 seconds. No network, no clock dependence, no shared state — every
 test builds its own in-memory database.
 
 The integration fixture is **twelve hand-written employees** whose medians you can verify by

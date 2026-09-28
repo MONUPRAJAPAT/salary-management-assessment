@@ -583,19 +583,25 @@ page does not flash light then snap to dark.
 
 ---
 
-## 11. Testing — 222 tests, 19 files, ~2.6 s
+## 11. Testing — 240 tests, 22 files, ~2.6 s
 
-| Area                                     | Tests |
-| ---------------------------------------- | ----: |
-| API (supertest)                          |    41 |
-| Analytics repository                     |    28 |
-| Employee repository                      |    23 |
-| Money                                    |    20 |
-| Seed generator                           |    18 |
-| Statistics                               |    14 |
-| Schema & constraints                     |     8 |
-| URL filter state                         |     8 |
-| Band domain, CSV, pages, client, toggle… |    62 |
+| Area                             | Tests |
+| -------------------------------- | ----: |
+| API, end to end with supertest   |    45 |
+| Analytics repository             |    30 |
+| Web pages and components         |    29 |
+| Employee repository              |    23 |
+| Money                            |    20 |
+| Seed generator                   |    18 |
+| Statistics                       |    14 |
+| Theme, formatting, API client    |    19 |
+| Schema and constraints           |     8 |
+| URL filter state                 |     8 |
+| Salary bands                     |     7 |
+| CSV writing                      |     6 |
+| Seed-on-boot guards              |     5 |
+| Current-compensation drift guard |     5 |
+| Search flow                      |     3 |
 
 ### The fixture is the point
 

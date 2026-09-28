@@ -11,7 +11,7 @@ import {
 } from '@acme/shared';
 import { Random } from './random';
 import { NAME_POOLS, toEmailToken } from './names';
-import { BAND_MIN_RATIO, COUNTRIES, buildSalaryBands, type SalaryBandSeed } from './reference-data';
+import { COUNTRIES, buildSalaryBands, type SalaryBandSeed } from './reference-data';
 
 /**
  * Generates ACME's 10,000 employees and their compensation history.
@@ -491,5 +491,3 @@ function monthsBetween(from: Date, to: Date): number {
 function toIsoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
-
-export { BAND_MIN_RATIO };

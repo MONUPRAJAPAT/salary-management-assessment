@@ -118,4 +118,4 @@ Click **Export CSV**.
   and is now 0.6 ms. Three fixes, each found by profiling rather than by reading the code.
 - `docs/ai-collaboration.md` — the eight places AI's first answer was wrong, and what caught
   each one.
-- `npm test` — 218 tests in 2.6 seconds.
+- `npm test` — 240 tests in 2.6 seconds.

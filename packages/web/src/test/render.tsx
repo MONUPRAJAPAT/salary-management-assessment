@@ -22,12 +22,7 @@ export function renderWithProviders(
   const Wrapper = ({ children }: { children: ReactNode }) => (
     <MantineProvider theme={theme} env="test">
       <QueryClientProvider client={queryClient}>
-        <MemoryRouter
-          initialEntries={[route]}
-          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-        >
-          {children}
-        </MemoryRouter>
+        <MemoryRouter initialEntries={[route]}>{children}</MemoryRouter>
       </QueryClientProvider>
     </MantineProvider>
   );
