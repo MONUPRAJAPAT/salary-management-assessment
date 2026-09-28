@@ -21,17 +21,22 @@ averages ₹1,800,000 with €85,000 is not a number — it is a category error.
 ```sql
 SELECT dimension,
        COUNT(*) AS headcount,
-       MAX(CASE WHEN pct <= 0.50 THEN usd_minor END) AS median_usd_minor,
-       MAX(CASE WHEN pct <= 0.25 THEN usd_minor END) AS p25_usd_minor
+       MIN(CASE WHEN pct >= 0.50 THEN usd_minor END) AS median_usd_minor,
+       MIN(CASE WHEN pct >= 0.25 THEN usd_minor END) AS p25_usd_minor
 FROM (SELECT dimension, usd_minor,
              CUME_DIST() OVER (PARTITION BY dimension ORDER BY usd_minor) AS pct
       FROM base)
 GROUP BY dimension;
 ```
 
-4. **The median definition is explicit and tested.** This returns the *lower* of the two middle
-   values for even-sized groups (a nearest-rank percentile), which is the standard convention for
-   compensation benchmarking. The equivalent pure function lives in `shared/src/statistics.ts` and
+4. **The median definition is explicit and tested.** `MIN(value WHERE cume_dist >= p)` is the
+   *nearest-rank* percentile: the smallest value at or above the p-th position. For an even-sized
+   group it returns the lower of the two middle values, which is the standard convention in
+   compensation benchmarking (it is always an actual salary someone is paid, not an interpolated
+   figure that belongs to nobody).
+
+   The `MAX(value WHERE cume_dist <= p)` formulation is the easy mistake here and is wrong for
+   odd-sized groups: with five salaries it returns the second, not the third. The equivalent pure function lives in `shared/src/statistics.ts` and
    the integration tests assert that SQL and JavaScript agree on the same fixture — so the SQL is
    verified against a definition a human can read.
 
