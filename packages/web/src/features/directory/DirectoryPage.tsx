@@ -7,6 +7,7 @@ import {
   MultiSelect,
   Pagination,
   Select,
+  SimpleGrid,
   Stack,
   Text,
   TextInput,
@@ -76,11 +77,18 @@ export function DirectoryPage() {
         </Group>
       </Group>
 
+      {/*
+        A grid, not a wrapping Group. With flex-grow on each control, the controls that
+        wrap onto the last row stretch to fill it — which is why Status ended up alone and
+        full width while Band position was clipped off the right edge. A grid gives every
+        filter an equal cell and a predictable number of columns per breakpoint, so the row
+        reflows instead of redistributing.
+      */}
       <Card withBorder padding="sm" radius="md">
-        <Group align="flex-end" gap="sm" wrap="wrap">
+        <SimpleGrid cols={{ base: 1, xs: 2, sm: 3, lg: 6 }} spacing="sm" verticalSpacing="sm">
           <TextInput
             label="Search"
-            placeholder="Name, email, employee number or job title"
+            placeholder="Name, email, number, title"
             leftSection={<IconSearch size={15} />}
             value={searchText}
             onChange={(event) => setSearchText(event.currentTarget.value)}
@@ -96,7 +104,6 @@ export function DirectoryPage() {
                 </ActionIcon>
               ) : null
             }
-            style={{ flex: '2 1 260px' }}
           />
           <MultiSelect
             label="Country"
@@ -109,7 +116,7 @@ export function DirectoryPage() {
             onChange={(value) => update({ country: value })}
             searchable
             clearable
-            style={{ flex: '1 1 170px' }}
+            hidePickedOptions
           />
           <MultiSelect
             label="Department"
@@ -119,7 +126,7 @@ export function DirectoryPage() {
             onChange={(value) => update({ department: value })}
             searchable
             clearable
-            style={{ flex: '1 1 170px' }}
+            hidePickedOptions
           />
           <MultiSelect
             label="Level"
@@ -128,7 +135,7 @@ export function DirectoryPage() {
             value={filters.level ?? []}
             onChange={(value) => update({ level: value })}
             clearable
-            style={{ flex: '1 1 160px' }}
+            hidePickedOptions
           />
           <MultiSelect
             label="Band position"
@@ -140,7 +147,7 @@ export function DirectoryPage() {
             value={filters.bandPosition ?? []}
             onChange={(value) => update({ bandPosition: value })}
             clearable
-            style={{ flex: '1 1 150px' }}
+            hidePickedOptions
           />
           <MultiSelect
             label="Status"
@@ -149,21 +156,26 @@ export function DirectoryPage() {
             value={filters.status ?? []}
             onChange={(value) => update({ status: value })}
             clearable
-            style={{ flex: '1 1 150px' }}
+            hidePickedOptions
           />
-          {activeFilterCount > 0 && (
+        </SimpleGrid>
+
+        {activeFilterCount > 0 && (
+          <Group justify="flex-end" mt="sm">
             <Button
               variant="subtle"
               color="gray"
+              size="xs"
+              leftSection={<IconX size={14} />}
               onClick={() => {
                 setSearchText('');
                 clear();
               }}
             >
-              Clear all
+              Clear all filters
             </Button>
-          )}
-        </Group>
+          </Group>
+        )}
       </Card>
 
       <Card withBorder padding={0} radius="md">
