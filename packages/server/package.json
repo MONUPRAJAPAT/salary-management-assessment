@@ -1,0 +1,35 @@
+{
+  "name": "@acme/server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "HTTP API and data access for salary management.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup",
+    "start": "node dist/index.js",
+    "seed": "tsx src/seed/run-seed.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@acme/shared": "*",
+    "better-sqlite3": "^12.2.0",
+    "compression": "^1.7.5",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "kysely": "^0.27.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/compression": "^1.7.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.0.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2"
+  }
+}

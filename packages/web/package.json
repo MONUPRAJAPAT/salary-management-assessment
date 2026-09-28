@@ -1,0 +1,40 @@
+{
+  "name": "@acme/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "HR Manager web application.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@acme/shared": "*",
+    "@mantine/charts": "^7.17.0",
+    "@mantine/core": "^7.17.0",
+    "@mantine/dates": "^7.17.0",
+    "@mantine/hooks": "^7.17.0",
+    "@mantine/notifications": "^7.17.0",
+    "@tabler/icons-react": "^3.26.0",
+    "@tanstack/react-query": "^5.62.11",
+    "dayjs": "^1.11.13",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.28.1",
+    "recharts": "^2.15.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "jsdom": "^25.0.1",
+    "vite": "^6.0.7"
+  }
+}

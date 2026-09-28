@@ -1,0 +1,45 @@
+{
+  "name": "acme-salary-management",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Salary management for ACME — 10,000 employees, multiple countries, one HR Manager.",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "workspaces": [
+    "packages/shared",
+    "packages/server",
+    "packages/web"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,magenta \"npm:dev:server\" \"npm:dev:web\"",
+    "dev:server": "npm run dev --workspace @acme/server",
+    "dev:web": "npm run dev --workspace @acme/web",
+    "build": "npm run build --workspace @acme/web && npm run build --workspace @acme/server",
+    "start": "npm run start --workspace @acme/server",
+    "seed": "npm run seed --workspace @acme/server",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "eslint packages --max-warnings 0",
+    "format": "prettier --write \"packages/**/*.{ts,tsx,json,css}\" \"docs/**/*.md\" \"*.md\"",
+    "format:check": "prettier --check \"packages/**/*.{ts,tsx,json,css}\"",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/node": "^22.20.4",
+    "@vitest/coverage-v8": "^3.2.7",
+    "concurrently": "^9.2.4",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
+    "prettier": "^3.9.9",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.70.1",
+    "vitest": "^3.2.7"
+  }
+}
