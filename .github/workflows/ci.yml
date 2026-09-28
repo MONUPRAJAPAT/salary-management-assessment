@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Formatting, lint, typecheck and tests — the same command available locally as
+      # `npm run verify`, so CI can never disagree with what a developer just ran.
+      - run: npm run verify
+
+      # The build is part of the check: a type error that only tsup or vite would catch
+      # should fail here, not on a deploy.
+      - run: npm run build
+
+      # Proves the seed still produces a complete, queryable organisation. It is the one
+      # thing the unit tests cannot cover, because they deliberately use a tiny fixture.
+      - name: Seed and verify 10,000 employees
+        run: |
+          npm run seed
+          npm run benchmark --workspace @acme/server
