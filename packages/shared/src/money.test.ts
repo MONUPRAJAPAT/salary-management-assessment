@@ -103,11 +103,22 @@ describe('currency conversion', () => {
     expect(convertMoney(original, 'EUR', RATES)).toEqual(original);
   });
 
-  it('stays exact for amounts large enough to overflow float arithmetic', () => {
-    // 90,071,992,547,409 minor units — beyond where doubles can count individual
-    // units once multiplied by a rate. BigInt intermediates keep this exact.
-    const huge = money(90_071_992_547_409, 'USD');
-    expect(convertMoney(huge, 'USD', RATES)).toEqual(huge);
+  it('stays exact where the intermediate product leaves safe-integer range', () => {
+    // ₹9,000,000,000,000.00 at $0.012 = $108,000,000,000.00.
+    // The intermediate (amountMinor × rate) is 1.08e19 — three orders of magnitude
+    // past Number.MAX_SAFE_INTEGER, where a double carries no guarantee of counting
+    // individual units. The BigInt rational is exact by construction.
+    expect(Number.isSafeInteger(900_000_000_000_000 * RATES.INR)).toBe(false);
+    expect(convertMoney(money(900_000_000_000_000, 'INR'), 'USD', RATES)).toEqual(
+      money(10_800_000_000_000, 'USD'),
+    );
+  });
+
+  it('round-trips a non-base currency pair without drift', () => {
+    const original = money(9_000, 'INR'); // ₹90.00
+    const viaEuro = convertMoney(original, 'EUR', RATES);
+    expect(viaEuro).toEqual(money(100, 'EUR')); // €1.00
+    expect(convertMoney(viaEuro, 'INR', RATES)).toEqual(original);
   });
 });
 
