@@ -28,10 +28,16 @@ updated or deleted. A mistake is corrected by appending a `correction` row.
 become queries rather than features. Future-dated raises work naturally — record it now, it takes
 effect on its date. Corrections are visible rather than silent.
 
-**Cost.** Every read of "current salary" is a top-1-per-group query. Solved once with the
-`current_compensation` view over `ROW_NUMBER() OVER (PARTITION BY employee_id ...)`, backed by
-`idx_comp_employee_effective`. Measured at ~11 ms for all 10,000 employees — see
-`docs/performance.md`.
+**Cost.** Every read of "current salary" is a top-1-per-group query, and this is the
+single largest performance consideration in the system.
+
+The first implementation was a view over `ROW_NUMBER() OVER (PARTITION BY employee_id ...)`.
+It was correct, and it was slow in a way that only measurement revealed: it ranked all
+40,574 records before answering anything, so showing 25 names cost the same 33 ms as
+aggregating the whole company. It is now a correlated `LIMIT 1` lookup against
+`idx_comp_employee_effective`, measured at 5.5 ms for all 10,000 employees and 1.5 ms for a
+filtered slice. Both forms are kept and a test holds them to the same answers. See
+`docs/architecture.md` §4 and `docs/performance.md`.
 
 **Invariant enforced in the service layer.** A compensation record must be in the employee's own
 country currency. Changing an employee's country is therefore a separate, explicit operation.

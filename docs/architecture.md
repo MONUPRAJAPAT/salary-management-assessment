@@ -79,10 +79,12 @@ Three modelling decisions carry the whole design:
 3. **Cross-country comparison goes through a dated FX table.** A median that mixes INR and EUR is a
    meaningless number; every aggregate is computed on a USD-normalised amount. See ADR-0006.
 
-## 4. The `current_compensation` view
+## 4. One definition of "current salary"
 
-Resolving "latest record on or before today" for 10,000 employees on every request would be the
-system's performance cliff. It is solved once, in SQL, as a view backed by a covering index:
+Resolving "the latest record effective on or before today" for 10,000 employees on every
+request is the system's performance cliff. It is stated twice, on purpose.
+
+**Declaratively**, as a view in the schema — the readable statement of the rule:
 
 ```sql
 CREATE VIEW current_compensation AS
@@ -90,14 +92,34 @@ SELECT employee_id, effective_from, base_salary_minor, currency_code, ...
 FROM (
   SELECT *, ROW_NUMBER() OVER (
              PARTITION BY employee_id ORDER BY effective_from DESC, id DESC
-           ) AS rn
+           ) AS row_number_desc
   FROM compensation_records
   WHERE effective_from <= DATE('now')
-) WHERE rn = 1;
+) WHERE row_number_desc = 1;
 ```
 
-Every read path — directory, profile, analytics, export — goes through this view, so "current
-salary" has exactly one definition in the system. See `docs/performance.md` for the measured cost.
+**Operationally**, as the join the queries actually run, because the view had to rank all
+40,574 records before answering anything — 33 ms to show 25 names, and the same 33 ms when
+filtered to a single country:
+
+```sql
+JOIN compensation_records cc ON cc.id = (
+  SELECT r.id FROM compensation_records r
+  WHERE r.employee_id = e.id AND r.effective_from <= :asOf
+  ORDER BY r.effective_from DESC, r.id DESC LIMIT 1
+)
+```
+
+As a correlated lookup this is an index seek per matching employee instead of a full
+ranking: 5.5 ms for the whole organisation, 1.5 ms filtered to India, effectively free for
+one page. Both forms are backed by `idx_comp_employee_effective`.
+
+Two statements of one rule can drift, so `current-compensation.test.ts` asserts that they
+select the same record for every employee in the fixture. Taking the date as a parameter
+rather than calling `DATE('now')` inside SQL is what made the rewrite possible — and it
+makes *"what did she earn in 2021?"* a first-class query rather than a missing feature.
+
+See `docs/performance.md` for the full before-and-after.
 
 ## 5. Request path, end to end
 
