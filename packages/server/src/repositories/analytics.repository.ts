@@ -14,6 +14,8 @@ import {
   type PayGapRow,
 } from '@acme/shared';
 import type { Database } from '../db/types';
+import { currentCompensationJoinSql } from './sql';
+import { todayIso } from '../domain/clock';
 
 /**
  * Every aggregate in the product.
@@ -30,7 +32,11 @@ import type { Database } from '../db/types';
  * See ADR-0006.
  */
 export class AnalyticsRepository {
-  constructor(private readonly db: Kysely<Database>) {}
+  constructor(
+    private readonly db: Kysely<Database>,
+    /** The date "current salary" is resolved against. Injectable so tests can move it. */
+    private readonly asOf: string = todayIso(),
+  ) {}
 
   async fxAsOf(): Promise<string> {
     const row = await this.db
@@ -349,13 +355,19 @@ export class AnalyticsRepository {
   /**
    * Monthly payroll cost of the current roster, back-projected through salary history.
    *
-   * LEAD() turns each compensation record into the interval it was in force for, so one
-   * pass over the history answers every month at once instead of re-resolving "current
-   * salary" twenty-four times.
+   * Computed as a running total of changes rather than by re-resolving everyone's salary
+   * for every month. Each compensation record contributes one delta — its amount minus
+   * the employee's previous amount — and the payroll in any month is the cumulative sum
+   * of every delta up to it. That turns a months x records nested loop into a single
+   * pass over the history: 333 ms down to single digits.
    *
-   * Known limitation: without a termination date in the model, this shows what today's
-   * people cost over time rather than what payroll actually cost in a past month. That
-   * is a genuinely useful question — and it is the one the UI labels it as.
+   * The sum telescopes, so the final month equals the sum of everyone's current salary.
+   * A test asserts exactly that against the overview, which is what keeps the two views
+   * of payroll honest with each other.
+   *
+   * Known limitation: without a termination date in the model this shows what today's
+   * people cost over time, not what payroll actually cost in a past month. That is a
+   * genuinely useful question, and it is the one the UI labels it as.
    */
   async payrollTrend(
     filter: AnalyticsFilter,
@@ -365,36 +377,44 @@ export class AnalyticsRepository {
 
     const result = await sql<{ month: string; payroll_minor: number; headcount: number }>`
       WITH RECURSIVE ${base},
-      month_series(month_start) AS (
-        SELECT DATE('now', 'start of month', ${sql.lit(`-${months - 1} months`)})
-        UNION ALL
-        SELECT DATE(month_start, '+1 month') FROM month_series
-        WHERE month_start < DATE('now', 'start of month')
-      ),
-      intervals AS (
-        SELECT cr.employee_id, cr.effective_from,
-               LEAD(cr.effective_from) OVER (
-                 PARTITION BY cr.employee_id ORDER BY cr.effective_from, cr.id
-               ) AS effective_until,
+      history AS (
+        SELECT cr.employee_id, cr.effective_from, cr.id,
                ((cr.base_salary_minor * fx.rate_to_base_micros * cur.base_scale) + 500000) / 1000000
                  AS base_minor
         FROM compensation_records cr
         JOIN currencies cur ON cur.code = cr.currency_code
         JOIN fx_rates  fx  ON fx.currency_code = cr.currency_code
         WHERE cr.employee_id IN (SELECT id FROM base)
+          AND cr.effective_from <= ${this.asOf}
+      ),
+      changes AS (
+        SELECT STRFTIME('%Y-%m', effective_from) AS month,
+               base_minor,
+               LAG(base_minor) OVER (
+                 PARTITION BY employee_id ORDER BY effective_from, id
+               ) AS previous_minor
+        FROM history
+      ),
+      monthly AS (
+        SELECT month,
+               SUM(base_minor - COALESCE(previous_minor, 0))          AS payroll_delta,
+               SUM(CASE WHEN previous_minor IS NULL THEN 1 ELSE 0 END) AS headcount_delta
+        FROM changes GROUP BY month
+      ),
+      series(month) AS (
+        SELECT MIN(month) FROM monthly
+        UNION ALL
+        SELECT STRFTIME('%Y-%m', DATE(month || '-01', '+1 month'))
+        FROM series WHERE month < STRFTIME('%Y-%m', ${this.asOf})
       )
-      SELECT STRFTIME('%Y-%m', m.month_start) AS month,
-             SUM(i.base_minor)                AS payroll_minor,
-             COUNT(*)                         AS headcount
-      FROM month_series m
-      JOIN intervals i
-        ON i.effective_from <= DATE(m.month_start, '+1 month', '-1 day')
-       AND (i.effective_until IS NULL OR i.effective_until > DATE(m.month_start, '+1 month', '-1 day'))
-      GROUP BY month
-      ORDER BY month
+      SELECT series.month AS month,
+             SUM(COALESCE(monthly.payroll_delta, 0))  OVER (ORDER BY series.month) AS payroll_minor,
+             SUM(COALESCE(monthly.headcount_delta, 0)) OVER (ORDER BY series.month) AS headcount
+      FROM series LEFT JOIN monthly ON monthly.month = series.month
+      ORDER BY series.month
     `.execute(this.db);
 
-    return result.rows.map((row) => ({
+    return result.rows.slice(-months).map((row) => ({
       month: row.month,
       payrollMinor: row.payroll_minor,
       headcount: row.headcount,
@@ -428,15 +448,17 @@ export class AnalyticsRepository {
 
     const where = conditions.length > 0 ? sql`WHERE ${sql.join(conditions, sql` AND `)}` : sql``;
     const compensationJoin = requireCurrentCompensation
-      ? sql`JOIN current_compensation cc ON cc.employee_id = e.id
+      ? sql`${currentCompensationJoinSql(this.asOf)}
             JOIN currencies cur ON cur.code = cc.currency_code
             JOIN fx_rates  fx  ON fx.currency_code = cc.currency_code`
-      : sql`LEFT JOIN current_compensation cc ON cc.employee_id = e.id
+      : sql`${currentCompensationJoinSql(this.asOf, { left: true })}
             LEFT JOIN currencies cur ON cur.code = cc.currency_code
             LEFT JOIN fx_rates  fx  ON fx.currency_code = cc.currency_code`;
 
+    // MATERIALIZED is load-bearing. The overview references this CTE seven times, and
+    // without the hint SQLite re-evaluates it once per reference: 359 ms against 47 ms.
     return sql`
-      base AS (
+      base AS MATERIALIZED (
         SELECT e.id, e.country_code, co.name AS country_name, e.department, e.level, e.gender,
                cc.base_salary_minor AS local_minor,
                ((cc.base_salary_minor * fx.rate_to_base_micros * cur.base_scale) + 500000) / 1000000

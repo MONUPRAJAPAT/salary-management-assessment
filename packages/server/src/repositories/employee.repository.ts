@@ -10,15 +10,26 @@ import {
   type Paginated,
 } from '@acme/shared';
 import type { Database } from '../db/types';
-import { baseSalaryMinorSql, bandPositionSql, compaRatioSql, levelSortOrderSql } from './sql';
+import {
+  baseSalaryMinorSql,
+  bandPositionSql,
+  compaRatioSql,
+  currentCompensationOn,
+  levelSortOrderSql,
+} from './sql';
 import { percentageChangeBetween } from '../domain/compensation';
+import { todayIso } from '../domain/clock';
 
 /**
  * All SQL for reading employees. Nothing above this layer knows what a JOIN is, and
  * nothing below it knows what an HTTP request is.
  */
 export class EmployeeRepository {
-  constructor(private readonly db: Kysely<Database>) {}
+  constructor(
+    private readonly db: Kysely<Database>,
+    /** The date "current salary" is resolved against. Injectable so tests can move it. */
+    private readonly asOf: string = todayIso(),
+  ) {}
 
   async list(query: EmployeeListQuery): Promise<Paginated<EmployeeSummary>> {
     const filtered = this.applyFilters(this.baseQuery(), query);
@@ -149,7 +160,7 @@ export class EmployeeRepository {
     return this.db
       .selectFrom('employees as e')
       .innerJoin('countries as co', 'co.code', 'e.country_code')
-      .leftJoin('current_compensation as cc', 'cc.employee_id', 'e.id')
+      .leftJoin('compensation_records as cc', (join) => join.on(currentCompensationOn(this.asOf)))
       .leftJoin('currencies as cur', 'cur.code', 'cc.currency_code')
       .leftJoin('fx_rates as fx', 'fx.currency_code', 'cc.currency_code')
       .leftJoin('salary_bands as b', (join) =>
