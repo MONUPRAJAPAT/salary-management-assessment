@@ -27,9 +27,18 @@ import { todayIso } from '../domain/clock';
 export class EmployeeRepository {
   constructor(
     private readonly db: Kysely<Database>,
-    /** The date "current salary" is resolved against. Injectable so tests can move it. */
-    private readonly asOf: string = todayIso(),
+    /**
+     * The date "current salary" is resolved against. Left undefined in production so it
+     * is read per query — a default argument would freeze it at construction, and these
+     * repositories are built once when the app starts. A process running past midnight
+     * would then resolve today's raises against yesterday. Tests pass an explicit date.
+     */
+    private readonly fixedAsOf?: string,
   ) {}
+
+  private get asOf(): string {
+    return this.fixedAsOf ?? todayIso();
+  }
 
   async list(query: EmployeeListQuery): Promise<Paginated<EmployeeSummary>> {
     const filtered = this.applyFilters(this.baseQuery(), query);

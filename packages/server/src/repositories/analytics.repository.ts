@@ -34,9 +34,18 @@ import { todayIso } from '../domain/clock';
 export class AnalyticsRepository {
   constructor(
     private readonly db: Kysely<Database>,
-    /** The date "current salary" is resolved against. Injectable so tests can move it. */
-    private readonly asOf: string = todayIso(),
+    /**
+     * The date "current salary" is resolved against. Left undefined in production so it
+     * is read per query — a default argument would freeze it at construction, and these
+     * repositories are built once when the app starts. A process running past midnight
+     * would then resolve today's raises against yesterday. Tests pass an explicit date.
+     */
+    private readonly fixedAsOf?: string,
   ) {}
+
+  private get asOf(): string {
+    return this.fixedAsOf ?? todayIso();
+  }
 
   async fxAsOf(): Promise<string> {
     const row = await this.db.selectFrom('fx_rates').select('as_of').limit(1).executeTakeFirst();
@@ -398,7 +407,12 @@ export class AnalyticsRepository {
         FROM changes GROUP BY month
       ),
       series(month) AS (
-        SELECT MIN(month) FROM monthly
+        -- Not MIN(): an aggregate always returns a row, so on an empty set it yields a
+        -- single NULL month, the recursion stops, and the endpoint emits one point with
+        -- month: null — which fails its own contract and renders the panel as an error.
+        -- The LIMIT must sit inside a subquery: in a compound SELECT it would otherwise
+        -- apply to the whole UNION ALL and truncate the recursion to a single month.
+        SELECT month FROM (SELECT month FROM monthly ORDER BY month LIMIT 1)
         UNION ALL
         SELECT STRFTIME('%Y-%m', DATE(month || '-01', '+1 month'))
         FROM series WHERE month < STRFTIME('%Y-%m', ${this.asOf})

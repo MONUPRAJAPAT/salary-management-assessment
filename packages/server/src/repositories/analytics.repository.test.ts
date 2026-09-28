@@ -263,6 +263,22 @@ describe('payroll trend', () => {
     expect(points.at(-1)?.headcount).toBe(overview.headcount);
   });
 
+  it('returns nothing, not a null month, when the filter matches nobody', async () => {
+    // A narrow filter combination is one click away in the UI. An aggregate always
+    // returns a row, so the empty case used to emit a single point with month: null —
+    // which failed the endpoint's own contract and rendered the panel as an error.
+    const points = await analytics.payrollTrend(filter({ country: 'ZZ' }), 24);
+    expect(points).toEqual([]);
+  });
+
+  it('every point has a real month', async () => {
+    for (const scope of [filter(), filter({ country: 'US' }), filter({ department: 'Sales' })]) {
+      for (const point of await analytics.payrollTrend(scope, 24)) {
+        expect(point.month).toMatch(/^\d{4}-\d{2}$/);
+      }
+    }
+  });
+
   it('shows payroll growing as salaries rise over time', async () => {
     const points = await analytics.payrollTrend(filter(), 60);
     const first = points[0]?.payrollMinor ?? 0;
