@@ -400,6 +400,27 @@ describe('analytics endpoints', () => {
 });
 
 describe('serving the web bundle', () => {
+  it('reports whether a UI is being served, so a broken deploy is visible from health', async () => {
+    // Health returning ok while every page 404s is the confusing failure this guards
+    // against: the deploy goes green and nothing works.
+    const withoutUi = createApp({ db: handle.db, webDistPath: './nowhere/at/all' });
+    const response = await request(withoutUi).get('/api/health').expect(200);
+
+    expect(response.body.status).toBe('ok');
+    expect(response.body.servingWebBundle).toBe(false);
+  });
+
+  it('names every path it tried, so the misconfiguration is obvious from the logs', () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    createApp({ db: handle.db, webDistPath: './nowhere/at/all' });
+
+    const message = error.mock.calls[0]?.[0] as string;
+    // A relative path is ambiguous, so three interpretations are attempted.
+    expect(message.match(/nowhere\/at\/all|web\/dist/g)?.length).toBeGreaterThanOrEqual(3);
+    error.mockRestore();
+  });
+
   it('complains loudly when the bundle is missing instead of quietly serving no UI', () => {
     // The failure mode this guards against: /api/health passes, the deploy goes green,
     // and every page is a bare 404 because the path was resolved against the wrong
