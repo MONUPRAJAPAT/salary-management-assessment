@@ -321,7 +321,9 @@ function generateCompensationHistory(random: Random, input: HistoryInput): Gener
     const isLast = position === raises.length - 1;
     // The final step lands exactly on the target so the intended salary distribution
     // survives the rounding applied at every intermediate step.
-    salaryMinor = isLast ? currentSalaryMinor : roundSalary(salaryMinor * raise.multiplier, currency);
+    salaryMinor = isLast
+      ? currentSalaryMinor
+      : roundSalary(salaryMinor * raise.multiplier, currency);
     records.push({
       employeeIndex,
       effectiveFrom: raise.date,

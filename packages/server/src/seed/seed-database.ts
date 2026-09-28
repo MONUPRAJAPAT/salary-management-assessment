@@ -1,10 +1,5 @@
 import type { DatabaseHandle } from '../db/connection';
-import {
-  COUNTRIES,
-  FX_AS_OF,
-  FX_RATES_TO_USD_MICROS,
-  currencyRows,
-} from './reference-data';
+import { COUNTRIES, FX_AS_OF, FX_RATES_TO_USD_MICROS, currencyRows } from './reference-data';
 import { generateDataset, type SeedDataset } from './generate';
 
 export interface SeedResult {
@@ -63,7 +58,14 @@ export function seedDatabase(handle: DatabaseHandle, dataset?: SeedDataset): See
       insertFxRate.run(currency, rate, FX_AS_OF);
     }
     for (const band of seed.bands) {
-      insertBand.run(band.countryCode, band.level, band.currency, band.minMinor, band.midMinor, band.maxMinor);
+      insertBand.run(
+        band.countryCode,
+        band.level,
+        band.currency,
+        band.minMinor,
+        band.midMinor,
+        band.maxMinor,
+      );
     }
 
     // Employees go in without managers, then managers are filled in a second pass. A

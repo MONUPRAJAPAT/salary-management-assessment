@@ -17,7 +17,10 @@ const ENDPOINTS: Array<[label: string, path: string]> = [
   ['Directory, first page', '/api/employees?pageSize=25'],
   ['Directory, page 200', '/api/employees?pageSize=25&page=200'],
   ['Directory, search', '/api/employees?search=priya&pageSize=25'],
-  ['Directory, 3 filters + salary sort', '/api/employees?country=IN&department=Engineering&sort=salary&direction=desc&pageSize=25'],
+  [
+    'Directory, 3 filters + salary sort',
+    '/api/employees?country=IN&department=Engineering&sort=salary&direction=desc&pageSize=25',
+  ],
   ['Directory, below band', '/api/employees?bandPosition=below&pageSize=25'],
   ['Employee profile + history', '/api/employees/4242'],
   ['Reference data', '/api/reference'],
@@ -63,7 +66,9 @@ async function main(): Promise<void> {
       `${counts.records.toLocaleString()} compensation records` +
       `\n  ${ITERATIONS} iterations per endpoint, ${WARMUP} warm-up\n`,
   );
-  console.info(`  ${'Endpoint'.padEnd(38)}${'p50'.padStart(8)}${'p95'.padStart(8)}${'max'.padStart(8)}   bytes`);
+  console.info(
+    `  ${'Endpoint'.padEnd(38)}${'p50'.padStart(8)}${'p95'.padStart(8)}${'max'.padStart(8)}   bytes`,
+  );
   console.info(`  ${'-'.repeat(38)}${'-'.repeat(26)}`);
 
   for (const [label, path] of ENDPOINTS) {

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CurrencyMismatchError,
   addMoney,
+  fromMajorUnits,
   compareMoney,
   convertMoney,
   formatMoney,
@@ -126,6 +127,14 @@ describe('presentation', () => {
   it('converts to major units only for display', () => {
     expect(toMajorUnits(money(8_500_000, 'INR'))).toBe(85_000);
     expect(toMajorUnits(money(8_500_000, 'JPY'))).toBe(8_500_000);
+  });
+
+  it('builds money from an amount a person typed', () => {
+    expect(fromMajorUnits(120_000, 'USD')).toEqual(money(12_000_000, 'USD'));
+    expect(fromMajorUnits(8_500_000, 'JPY')).toEqual(money(8_500_000, 'JPY'));
+    // 1.1 * 100 is 110.00000000000001 in floating point; a salary may not round on entry.
+    expect(fromMajorUnits(1.1, 'USD')).toEqual(money(110, 'USD'));
+    expect(fromMajorUnits(120_000.45, 'USD')).toEqual(money(12_000_045, 'USD'));
   });
 
   it('formats with the currency symbol and the right number of decimals', () => {

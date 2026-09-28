@@ -1,0 +1,36 @@
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+}
+
+/* Salary columns are read by comparing digits down the column, so they need to line up. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Chart colour tokens.
+ *
+ * Categorical slots 1 and 2 are the only multi-series pair the dashboard uses (women
+ * against men in the pay-gap view); both modes were validated against the actual Mantine
+ * surfaces for colour-vision separation and 3:1 contrast before being adopted.
+ *
+ * Status colours are fixed rather than themed, and never double as a series colour, so a
+ * red bar always means "below band" and nothing else. Each one is paired with a text
+ * label wherever it appears — colour never carries the meaning alone.
+ */
+:root {
+  --viz-series-1: #2a78d6;
+  --viz-series-2: #eb6834;
+  --viz-good: #0ca30c;
+  --viz-warning: #fab219;
+  --viz-critical: #d03b3b;
+}
+
+[data-mantine-color-scheme='dark'] {
+  --viz-series-1: #3987e5;
+  --viz-series-2: #d95926;
+}

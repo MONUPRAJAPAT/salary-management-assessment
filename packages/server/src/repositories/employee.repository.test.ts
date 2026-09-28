@@ -106,7 +106,9 @@ describe('sorting', () => {
   it('sorts by salary in the base currency, not the local figure', async () => {
     // Kiran earns ₹4,800,000 and Hank earns $80,000. Ordering by the raw number would
     // put Kiran at the top of the company; converted, he is paid $60,000.
-    const result = await repository.list(query({ status: 'active', sort: 'salary', direction: 'desc' }));
+    const result = await repository.list(
+      query({ status: 'active', sort: 'salary', direction: 'desc' }),
+    );
     expect(namesOf(result.items)).toEqual([
       'Dan', // $160,000
       'Carol', // $140,000

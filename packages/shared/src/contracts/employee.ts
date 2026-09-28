@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { csvOf, isoDateSchema, moneySchema, paginatedSchema, paginationQuerySchema } from './common';
+import {
+  csvOf,
+  isoDateSchema,
+  moneySchema,
+  paginatedSchema,
+  paginationQuerySchema,
+} from './common';
 import {
   bandPositionSchema,
   departmentSchema,

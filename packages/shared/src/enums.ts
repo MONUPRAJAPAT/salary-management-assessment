@@ -32,19 +32,21 @@ export type LevelTrack = 'individual_contributor' | 'management';
  * `sortOrder` gives levels a deterministic rank so "sort by level" is seniority order
  * rather than alphabetical (which would put M1 above IC6 and IC10 below IC2).
  */
-export const LEVEL_METADATA: Record<Level, { label: string; track: LevelTrack; sortOrder: number }> =
-  {
-    IC1: { label: 'Associate', track: 'individual_contributor', sortOrder: 1 },
-    IC2: { label: 'Professional', track: 'individual_contributor', sortOrder: 2 },
-    IC3: { label: 'Senior', track: 'individual_contributor', sortOrder: 3 },
-    IC4: { label: 'Staff', track: 'individual_contributor', sortOrder: 4 },
-    IC5: { label: 'Principal', track: 'individual_contributor', sortOrder: 5 },
-    IC6: { label: 'Distinguished', track: 'individual_contributor', sortOrder: 6 },
-    M1: { label: 'Manager', track: 'management', sortOrder: 7 },
-    M2: { label: 'Senior Manager', track: 'management', sortOrder: 8 },
-    M3: { label: 'Director', track: 'management', sortOrder: 9 },
-    M4: { label: 'Vice President', track: 'management', sortOrder: 10 },
-  };
+export const LEVEL_METADATA: Record<
+  Level,
+  { label: string; track: LevelTrack; sortOrder: number }
+> = {
+  IC1: { label: 'Associate', track: 'individual_contributor', sortOrder: 1 },
+  IC2: { label: 'Professional', track: 'individual_contributor', sortOrder: 2 },
+  IC3: { label: 'Senior', track: 'individual_contributor', sortOrder: 3 },
+  IC4: { label: 'Staff', track: 'individual_contributor', sortOrder: 4 },
+  IC5: { label: 'Principal', track: 'individual_contributor', sortOrder: 5 },
+  IC6: { label: 'Distinguished', track: 'individual_contributor', sortOrder: 6 },
+  M1: { label: 'Manager', track: 'management', sortOrder: 7 },
+  M2: { label: 'Senior Manager', track: 'management', sortOrder: 8 },
+  M3: { label: 'Director', track: 'management', sortOrder: 9 },
+  M4: { label: 'Vice President', track: 'management', sortOrder: 10 },
+};
 
 export const EMPLOYMENT_TYPES = ['full_time', 'part_time', 'contract'] as const;
 export const employmentTypeSchema = z.enum(EMPLOYMENT_TYPES);

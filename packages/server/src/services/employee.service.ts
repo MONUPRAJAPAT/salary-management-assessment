@@ -1,9 +1,5 @@
 import type { Kysely } from 'kysely';
-import type {
-  CreateEmployeeInput,
-  EmployeeDetail,
-  UpdateEmployeeInput,
-} from '@acme/shared';
+import type { CreateEmployeeInput, EmployeeDetail, UpdateEmployeeInput } from '@acme/shared';
 import type { Database } from '../db/types';
 import { EmployeeRepository } from '../repositories/employee.repository';
 import { ConflictError, NotFoundError, ValidationError } from '../http/errors';
@@ -90,7 +86,8 @@ export class EmployeeService {
     if (!(await this.employees.existsById(id))) throw new NotFoundError(`Employee ${id}`);
 
     if (input.managerId !== undefined && input.managerId !== null) {
-      if (input.managerId === id) throw new ValidationError('An employee cannot manage themselves.');
+      if (input.managerId === id)
+        throw new ValidationError('An employee cannot manage themselves.');
       if (!(await this.employees.existsById(input.managerId))) {
         throw new ValidationError(`Manager ${input.managerId} does not exist.`);
       }

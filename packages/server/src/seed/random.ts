@@ -58,7 +58,8 @@ export class Random {
   normal(mean: number, standardDeviation: number, min = -Infinity, max = Infinity): number {
     const u1 = Math.max(this.next(), Number.EPSILON);
     const u2 = this.next();
-    const value = mean + standardDeviation * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
+    const value =
+      mean + standardDeviation * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2);
     return Math.min(Math.max(value, min), max);
   }
 

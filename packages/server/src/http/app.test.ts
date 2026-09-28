@@ -110,7 +110,10 @@ describe('GET /api/employees/export', () => {
   });
 
   it('quotes a job title containing a comma, so the columns stay aligned', async () => {
-    await request(app).patch('/api/employees/1').send({ jobTitle: 'Director, Engineering' }).expect(200);
+    await request(app)
+      .patch('/api/employees/1')
+      .send({ jobTitle: 'Director, Engineering' })
+      .expect(200);
 
     const response = await request(app).get('/api/employees/export?search=Alice').expect(200);
     const row = response.text.trim().split('\r\n')[1] ?? '';
@@ -223,7 +226,10 @@ describe('PATCH /api/employees/:id', () => {
   it('refuses a reporting line that would close a loop', async () => {
     // Hank (8) already reports to Alice (1). Making Alice report to Hank would create a
     // cycle that hangs anything walking the chain.
-    const response = await request(app).patch('/api/employees/1').send({ managerId: 8 }).expect(400);
+    const response = await request(app)
+      .patch('/api/employees/1')
+      .send({ managerId: 8 })
+      .expect(400);
     expect(response.body.error.message).toMatch(/cycle/i);
   });
 

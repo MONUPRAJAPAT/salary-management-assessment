@@ -20,7 +20,10 @@ export class ReferenceRepository {
         .select(['code', 'name', 'region', 'currency_code'])
         .orderBy('name')
         .execute(),
-      this.db.selectFrom('fx_rates').select(['currency_code', 'rate_to_base_micros', 'as_of']).execute(),
+      this.db
+        .selectFrom('fx_rates')
+        .select(['currency_code', 'rate_to_base_micros', 'as_of'])
+        .execute(),
     ]);
 
     return {
@@ -35,7 +38,9 @@ export class ReferenceRepository {
       fx: {
         asOf: rates[0]?.as_of ?? new Date().toISOString().slice(0, 10),
         baseCurrency: BASE_CURRENCY,
-        rates: Object.fromEntries(rates.map((rate) => [rate.currency_code, rate.rate_to_base_micros])),
+        rates: Object.fromEntries(
+          rates.map((rate) => [rate.currency_code, rate.rate_to_base_micros]),
+        ),
       },
     };
   }
@@ -60,6 +65,8 @@ export class ReferenceRepository {
       .where('level', '=', level)
       .executeTakeFirst();
 
-    return row ? { minMinor: row.min_minor, midMinor: row.mid_minor, maxMinor: row.max_minor } : null;
+    return row
+      ? { minMinor: row.min_minor, midMinor: row.mid_minor, maxMinor: row.max_minor }
+      : null;
   }
 }

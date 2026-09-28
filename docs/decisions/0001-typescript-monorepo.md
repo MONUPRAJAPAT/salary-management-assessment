@@ -3,17 +3,20 @@
 **Status:** accepted · **Date:** 2026-09-28
 
 ## Context
+
 The brief requires a backend and a React UI. The obvious options are two independent repos/folders,
 or one workspace. The interesting question is not "how many folders" but **where the API contract
 lives**.
 
 ## Decision
+
 One repo, npm workspaces, three packages: `@acme/shared`, `@acme/server`, `@acme/web`.
 `@acme/shared` holds Zod schemas for every request and response, the money primitives, the domain
 enums and the statistics helpers. The server validates with them; the web client infers types from
 them.
 
 ## Consequences
+
 **Good.** One definition of every API shape. Renaming a response field breaks the UI build
 immediately instead of at runtime. Enums (`Level`, `Department`, `ChangeReason`) cannot drift apart.
 Money handling is identical on both sides of the wire.

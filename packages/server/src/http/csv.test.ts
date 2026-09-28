@@ -9,7 +9,9 @@ describe('toCsv', () => {
   it('quotes a field containing a comma', () => {
     // Management job titles are "Director, Engineering" — unquoted, that is two columns
     // and every field after it in the row is shifted.
-    expect(toCsv(['title'], [['Director, Engineering']])).toBe('title\r\n"Director, Engineering"\r\n');
+    expect(toCsv(['title'], [['Director, Engineering']])).toBe(
+      'title\r\n"Director, Engineering"\r\n',
+    );
   });
 
   it('doubles an embedded quote', () => {

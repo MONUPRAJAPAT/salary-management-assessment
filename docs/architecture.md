@@ -41,12 +41,12 @@ single highest-leverage structural decision in the repo for a TypeScript codebas
 
 ## 2. Layering rules
 
-| Layer | May depend on | Contains | Tested by |
-|---|---|---|---|
-| `http/routes` | services, shared | Parsing, status codes, error mapping. No SQL, no arithmetic. | Supertest API tests |
-| `services` | repositories, domain | Use-cases and invariants ("a raise must be in the employee's currency") | API + service tests |
-| `repositories` | db, domain | **Every SQL statement in the codebase** | Integration tests on in-memory SQLite |
-| `domain` | shared | Pure functions: money, FX, compa-ratio, percentiles | Fast unit tests |
+| Layer          | May depend on        | Contains                                                                | Tested by                             |
+| -------------- | -------------------- | ----------------------------------------------------------------------- | ------------------------------------- |
+| `http/routes`  | services, shared     | Parsing, status codes, error mapping. No SQL, no arithmetic.            | Supertest API tests                   |
+| `services`     | repositories, domain | Use-cases and invariants ("a raise must be in the employee's currency") | API + service tests                   |
+| `repositories` | db, domain           | **Every SQL statement in the codebase**                                 | Integration tests on in-memory SQLite |
+| `domain`       | shared               | Pure functions: money, FX, compa-ratio, percentiles                     | Fast unit tests                       |
 
 The dependency arrow never reverses. `domain` knows nothing about HTTP or SQL, which is why it is
 trivial to test and why the interesting rules are the easiest code in the repo to read.
@@ -71,8 +71,8 @@ erDiagram
 Three modelling decisions carry the whole design:
 
 1. **Compensation is effective-dated and append-only.** An employee has no `salary` column. Their
-   salary is *the most recent compensation record whose `effective_from` is on or before the date you
-   are asking about*. This is how compensation actually works, and it means "what did we pay last
+   salary is _the most recent compensation record whose `effective_from` is on or before the date you
+   are asking about_. This is how compensation actually works, and it means "what did we pay last
    January?" is a query, not a lost fact. See ADR-0004.
 2. **Money is integer minor units.** `base_salary_minor = 8_500_000` is ₹85,000.00. Never a float.
    See ADR-0003.
@@ -117,15 +117,15 @@ rows into memory, and neither does the browser.
 
 ## 6. Testing strategy
 
-| Kind | Where | Runs against | Speed |
-|---|---|---|---|
-| Unit | `domain/`, `shared/` | Nothing — pure functions | instant |
-| Integration | `repositories/`, analytics SQL | `:memory:` SQLite + a **12-employee hand-written fixture** whose medians are obvious on sight | fast |
-| API | `http/` | Supertest + in-memory DB | fast |
-| Component | `web/` | Testing Library + jsdom, network mocked at the fetch boundary | fast |
+| Kind        | Where                          | Runs against                                                                                  | Speed   |
+| ----------- | ------------------------------ | --------------------------------------------------------------------------------------------- | ------- |
+| Unit        | `domain/`, `shared/`           | Nothing — pure functions                                                                      | instant |
+| Integration | `repositories/`, analytics SQL | `:memory:` SQLite + a **12-employee hand-written fixture** whose medians are obvious on sight | fast    |
+| API         | `http/`                        | Supertest + in-memory DB                                                                      | fast    |
+| Component   | `web/`                         | Testing Library + jsdom, network mocked at the fetch boundary                                 | fast    |
 
-The integration fixture is deliberately tiny and hand-built. When a test asserts *"the median
-Engineering salary in the US is $150,000"*, you can verify that by reading the fixture, which is the
+The integration fixture is deliberately tiny and hand-built. When a test asserts _"the median
+Engineering salary in the US is $150,000"_, you can verify that by reading the fixture, which is the
 difference between a test that documents behaviour and a test that merely detects change.
 
 ## 7. What I would do next

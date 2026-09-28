@@ -63,9 +63,7 @@ export class CompensationService {
     // An identical record on the same date is a double submit, not a correction. A
     // correction changes the amount, and is allowed.
     if (duplicate) {
-      throw new ConflictError(
-        `This exact change is already recorded for ${input.effectiveFrom}.`,
-      );
+      throw new ConflictError(`This exact change is already recorded for ${input.effectiveFrom}.`);
     }
 
     const inserted = await this.db
@@ -121,5 +119,4 @@ export class CompensationService {
     return scaleMoney(money(previous.base_salary_minor, currency), 1 + increasePercent / 100)
       .amountMinor;
   }
-
 }

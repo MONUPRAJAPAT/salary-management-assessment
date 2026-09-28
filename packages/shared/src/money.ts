@@ -114,6 +114,16 @@ export function convertMoney(amount: Money, target: CurrencyCode, rates: FxRateT
   return money(Number(divideRoundHalfAwayFromZero(numerator, denominator)), target);
 }
 
+/**
+ * Builds Money from an amount a human typed in major units (120000 for $120,000).
+ * The multiplication is done in a way that survives float representation: 1.1 * 100 is
+ * 110.00000000000001, and a salary is not allowed to round on the way in.
+ */
+export function fromMajorUnits(majorAmount: number, currency: CurrencyCode): Money {
+  const scale = 10 ** currencyExponent(currency);
+  return money(roundHalfAwayFromZero(majorAmount * scale), currency);
+}
+
 /** Major units, for display only. Never feed the result back into a calculation. */
 export function toMajorUnits(amount: Money): number {
   return amount.amountMinor / 10 ** currencyExponent(amount.currency);

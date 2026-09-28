@@ -1,11 +1,6 @@
 import { z } from 'zod';
 import { csvOf, isoDateSchema, moneySchema } from './common';
-import {
-  analyticsDimensionSchema,
-  departmentSchema,
-  genderSchema,
-  levelSchema,
-} from '../enums';
+import { analyticsDimensionSchema, departmentSchema, genderSchema, levelSchema } from '../enums';
 import { employeeSummarySchema } from './employee';
 
 /**

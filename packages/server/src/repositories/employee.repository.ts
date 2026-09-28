@@ -35,9 +35,7 @@ export class EmployeeRepository {
     const filtered = this.applyFilters(this.baseQuery(), query);
 
     const [{ total }, rows] = await Promise.all([
-      filtered
-        .select(sql<number>`COUNT(*)`.as('total'))
-        .executeTakeFirstOrThrow(),
+      filtered.select(sql<number>`COUNT(*)`.as('total')).executeTakeFirstOrThrow(),
       this.applySort(filtered.select(EMPLOYEE_COLUMNS), query)
         .limit(query.pageSize)
         .offset((query.page - 1) * query.pageSize)
@@ -168,10 +166,7 @@ export class EmployeeRepository {
       );
   }
 
-  private applyFilters<O>(
-    query: EmployeeQuery<O>,
-    filter: EmployeeListQuery,
-  ): EmployeeQuery<O> {
+  private applyFilters<O>(query: EmployeeQuery<O>, filter: EmployeeListQuery): EmployeeQuery<O> {
     let result = query;
 
     if (filter.search) {
@@ -196,7 +191,8 @@ export class EmployeeRepository {
     if (filter.employmentType?.length) {
       result = result.where('e.employment_type', 'in', filter.employmentType);
     }
-    if (filter.managerId !== undefined) result = result.where('e.manager_id', '=', filter.managerId);
+    if (filter.managerId !== undefined)
+      result = result.where('e.manager_id', '=', filter.managerId);
     if (filter.bandPosition?.length) {
       result = result.where(bandPositionSql, 'in', filter.bandPosition);
     }

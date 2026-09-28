@@ -1,6 +1,12 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { TOTAL_HEADCOUNT, COUNTRIES } from './reference-data';
-import { generateDataset, jobTitleFor, roundSalary, SEED_AS_OF, type SeedDataset } from './generate';
+import {
+  generateDataset,
+  jobTitleFor,
+  roundSalary,
+  SEED_AS_OF,
+  type SeedDataset,
+} from './generate';
 
 let dataset: SeedDataset;
 

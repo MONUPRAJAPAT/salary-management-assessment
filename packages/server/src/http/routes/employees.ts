@@ -39,9 +39,22 @@ export function employeeRoutes(db: Kysely<Database>): Router {
 
     const csv = toCsv(
       [
-        'Employee number', 'First name', 'Last name', 'Email', 'Job title',
-        'Department', 'Level', 'Country', 'Employment type', 'Status', 'Hire date',
-        'Salary', 'Currency', 'Salary (USD)', 'Compa-ratio', 'Band position',
+        'Employee number',
+        'First name',
+        'Last name',
+        'Email',
+        'Job title',
+        'Department',
+        'Level',
+        'Country',
+        'Employment type',
+        'Status',
+        'Hire date',
+        'Salary',
+        'Currency',
+        'Salary (USD)',
+        'Compa-ratio',
+        'Band position',
       ],
       rows.map((employee) => [
         employee.employeeNumber,

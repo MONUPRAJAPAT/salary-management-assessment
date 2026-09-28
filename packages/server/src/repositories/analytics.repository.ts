@@ -39,11 +39,7 @@ export class AnalyticsRepository {
   ) {}
 
   async fxAsOf(): Promise<string> {
-    const row = await this.db
-      .selectFrom('fx_rates')
-      .select('as_of')
-      .limit(1)
-      .executeTakeFirst();
+    const row = await this.db.selectFrom('fx_rates').select('as_of').limit(1).executeTakeFirst();
     return row?.as_of ?? new Date().toISOString().slice(0, 10);
   }
 

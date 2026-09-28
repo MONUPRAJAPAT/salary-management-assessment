@@ -40,9 +40,11 @@ export function openDatabase({
   const db = new Kysely<Database>({
     dialect: new SqliteDialect({ database: sqlite }),
     ...(logQueries
-      ? { log: (event: { level: string; query: { sql: string } }) => {
-          if (event.level === 'query') console.info(event.query.sql);
-        } }
+      ? {
+          log: (event: { level: string; query: { sql: string } }) => {
+            if (event.level === 'query') console.info(event.query.sql);
+          },
+        }
       : {}),
   });
 

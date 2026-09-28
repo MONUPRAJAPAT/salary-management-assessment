@@ -20,15 +20,15 @@ Two jobs, weighted equally:
 
 **Persona:** HR Manager at ACME. One person, trusted, not technical, lives in this tool daily.
 
-| Job to be done | What the product must do |
-|---|---|
-| "What does Priya earn?" | Find one person in 10,000 in under a second |
-| "Give her a 7% raise from 1 Jan, because promotion" | Record a change *with a reason and an effective date* — never overwrite |
-| "What did she earn last year?" | Show full compensation history |
-| "What do we pay a Senior Engineer in Germany vs India?" | Compare like-for-like across currencies |
-| "Is anyone paid below their band?" | Flag every out-of-band employee |
-| "Do we have a pay gap in Sales?" | Median pay by gender, sliced by department/level |
-| "What is our annual payroll, and where does it go?" | Total cost, split by country / department / level |
+| Job to be done                                          | What the product must do                                                |
+| ------------------------------------------------------- | ----------------------------------------------------------------------- |
+| "What does Priya earn?"                                 | Find one person in 10,000 in under a second                             |
+| "Give her a 7% raise from 1 Jan, because promotion"     | Record a change _with a reason and an effective date_ — never overwrite |
+| "What did she earn last year?"                          | Show full compensation history                                          |
+| "What do we pay a Senior Engineer in Germany vs India?" | Compare like-for-like across currencies                                 |
+| "Is anyone paid below their band?"                      | Flag every out-of-band employee                                         |
+| "Do we have a pay gap in Sales?"                        | Median pay by gender, sliced by department/level                        |
+| "What is our annual payroll, and where does it go?"     | Total cost, split by country / department / level                       |
 
 Questions 4–7 are the reason this product exists. A CRUD app that cannot answer them has failed the
 brief, so the analytics layer is a first-class feature, not a dashboard bolted on at the end.
@@ -46,19 +46,19 @@ brief, so the analytics layer is a first-class feature, not a dashboard bolted o
    band-health view, salary distribution.
 6. **Multi-currency** — salaries stored in the employee's local currency; every comparison is
    normalised to a base currency (USD) through a dated FX table.
-7. **CSV export** of any filtered view — the off-ramp *from* Excel, deliberately not a road back to it.
+7. **CSV export** of any filtered view — the off-ramp _from_ Excel, deliberately not a road back to it.
 
 ## 4. Explicitly out of scope — and why
 
-| Left out | Reasoning |
-|---|---|
-| **Authentication, roles, permissions** | The brief names exactly one persona. Real auth (sessions, RBAC, SSO) is well-understood, high-effort, low-signal work that would crowd out the compensation modelling and analytics that this exercise is actually about. The API is layered so an auth middleware drops in at one seam. **This is the first thing I would build next.** |
-| **Payroll execution, tax, statutory deductions, pensions, benefits** | This is a system of record for *what we pay*, not a system that *pays*. Payroll carries a country-by-country compliance surface that cannot be done credibly at this size, and doing it badly is worse than not doing it. |
-| **Bonus, commission, equity** | Real compensation, but each multiplies the data model and the analytics. Base salary is where the HR Manager's questions concentrate. The compensation record is typed so these become new component rows, not a rewrite. |
-| **Bulk CSV import** | The genuine migration path off Excel, and the most tempting thing to ship. Doing it *safely* needs dry-run, row-level validation, duplicate detection and a diff-review UI. Deferred deliberately rather than shipped half-safe, because a silent bad import corrupts the system of record. |
-| **Approval workflows / future-dated org changes** | One trusted user needs no approval chain. Adding one implies notifications, state machines and a second persona. |
-| **Live FX rates** | Rates live in a dated table seeded with realistic values. A provider is one adapter behind an existing interface. Pinned rates also make analytics **reproducible**, which matters more here than being current. |
-| **Org-chart visualisation, headcount planning, offer letters, performance reviews** | Adjacent products. Each would dilute the two jobs above. |
+| Left out                                                                            | Reasoning                                                                                                                                                                                                                                                                                                                                |
+| ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Authentication, roles, permissions**                                              | The brief names exactly one persona. Real auth (sessions, RBAC, SSO) is well-understood, high-effort, low-signal work that would crowd out the compensation modelling and analytics that this exercise is actually about. The API is layered so an auth middleware drops in at one seam. **This is the first thing I would build next.** |
+| **Payroll execution, tax, statutory deductions, pensions, benefits**                | This is a system of record for _what we pay_, not a system that _pays_. Payroll carries a country-by-country compliance surface that cannot be done credibly at this size, and doing it badly is worse than not doing it.                                                                                                                |
+| **Bonus, commission, equity**                                                       | Real compensation, but each multiplies the data model and the analytics. Base salary is where the HR Manager's questions concentrate. The compensation record is typed so these become new component rows, not a rewrite.                                                                                                                |
+| **Bulk CSV import**                                                                 | The genuine migration path off Excel, and the most tempting thing to ship. Doing it _safely_ needs dry-run, row-level validation, duplicate detection and a diff-review UI. Deferred deliberately rather than shipped half-safe, because a silent bad import corrupts the system of record.                                              |
+| **Approval workflows / future-dated org changes**                                   | One trusted user needs no approval chain. Adding one implies notifications, state machines and a second persona.                                                                                                                                                                                                                         |
+| **Live FX rates**                                                                   | Rates live in a dated table seeded with realistic values. A provider is one adapter behind an existing interface. Pinned rates also make analytics **reproducible**, which matters more here than being current.                                                                                                                         |
+| **Org-chart visualisation, headcount planning, offer letters, performance reviews** | Adjacent products. Each would dilute the two jobs above.                                                                                                                                                                                                                                                                                 |
 
 ## 5. Non-functional requirements
 

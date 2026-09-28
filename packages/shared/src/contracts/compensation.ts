@@ -18,8 +18,7 @@ export const createCompensationChangeSchema = z
     increasePercent: z.number().min(-100).max(200).optional(),
   })
   .refine(
-    (value) =>
-      (value.newSalaryMinor === undefined) !== (value.increasePercent === undefined),
+    (value) => (value.newSalaryMinor === undefined) !== (value.increasePercent === undefined),
     { message: 'Provide either newSalaryMinor or increasePercent, not both' },
   );
 export type CreateCompensationChangeInput = z.infer<typeof createCompensationChangeSchema>;
