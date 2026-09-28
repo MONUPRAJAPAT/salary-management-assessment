@@ -1,0 +1,23 @@
+# Render blueprint. `render blueprint launch`, or point a new Blueprint at this repo.
+services:
+  - type: web
+    name: acme-salary-management
+    runtime: node
+    plan: starter
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 4000
+      # SQLite needs a persistent disk; without one the database is lost on redeploy.
+      - key: DATABASE_PATH
+        value: /var/data/salary.sqlite
+      - key: WEB_DIST_PATH
+        value: ./packages/web/dist
+    disk:
+      name: salary-data
+      mountPath: /var/data
+      sizeGB: 1
