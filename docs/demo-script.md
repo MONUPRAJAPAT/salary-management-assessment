@@ -2,7 +2,7 @@
 
 A five-minute walkthrough that shows the product doing the job it was built for, in the
 order an HR Manager would actually hit it. Each step notes what to say, because the
-interesting part is usually *why* the screen behaves that way.
+interesting part is usually _why_ the screen behaves that way.
 
 **Setup:** `npm run seed && npm run dev`, then open http://localhost:5173.
 
@@ -42,13 +42,13 @@ Point at the withheld groups.
 
 > "These groups have fewer than five people of a gender. The server never computes their
 > median at all — it's suppressed inside the SQL query, not filtered out afterwards, so it
-> can't leak through a forgotten line of UI code. And they're shown as *withheld* rather
+> can't leak through a forgotten line of UI code. And they're shown as _withheld_ rather
 > than dropped, because 'we're not telling you' and 'there's nobody here' are different
 > answers."
 
 ### 4 · From a statistic to an action (45s)
 
-Scroll to **Salary band health** → click a name in *Furthest below band*.
+Scroll to **Salary band health** → click a name in _Furthest below band_.
 
 > "The count is a statistic. The list is something you can act on this afternoon."
 
@@ -107,7 +107,7 @@ Point at the URL.
 Click **Export CSV**.
 
 > "And when you do need it in a spreadsheet, it exports exactly what's on screen — the
-> filtered view, not the whole company. That's the way *out* of Excel, not the way back in."
+> filtered view, not the whole company. That's the way _out_ of Excel, not the way back in."
 
 ---
 

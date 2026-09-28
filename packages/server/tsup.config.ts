@@ -1,7 +1,9 @@
 import { defineConfig } from 'tsup';
 
 export default defineConfig({
-  entry: ['src/index.ts'],
+  // Two entries: the server, and the seed CLI. Compiling the seed means the runtime
+  // image needs neither tsx nor the TypeScript source to create a database.
+  entry: { index: 'src/index.ts', seed: 'src/seed/run-seed.ts' },
   format: ['esm'],
   target: 'node20',
   clean: true,

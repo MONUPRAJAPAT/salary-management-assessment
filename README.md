@@ -38,7 +38,7 @@ npm start        # one process serving the API and the UI on :4000
 
 | Command                                      |                                                             |
 | -------------------------------------------- | ----------------------------------------------------------- |
-| `npm test` | all 218 tests, three packages, ~2.6s |
+| `npm test`                                   | all 218 tests, three packages, ~2.6s                        |
 | `npm run test:watch`                         | watch mode                                                  |
 | `npm run test:coverage`                      | coverage report                                             |
 | `npm run verify`                             | format check, lint, typecheck and tests — what CI would run |

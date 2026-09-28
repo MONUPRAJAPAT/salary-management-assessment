@@ -36,23 +36,39 @@ something that can happen by accident.
 ## Docker
 
 ```bash
+docker compose up --build          # http://localhost:4000
+docker compose run --rm app node packages/server/dist/seed.js   # first run only
+```
+
+Or without compose:
+
+```bash
 docker build -t acme-salary .
 docker volume create acme-salary-data
+docker run --rm -v acme-salary-data:/data acme-salary node packages/server/dist/seed.js
 docker run -p 4000:4000 -v acme-salary-data:/data acme-salary
 ```
 
-To seed the volume once:
+The image is built in three stages, so the runtime layer carries production
+dependencies and compiled output only — no dev dependencies, no TypeScript source, no
+compiler. The seed is compiled to `dist/seed.js` by the same build, which is why it runs
+under plain `node` rather than needing `tsx` at runtime.
 
-```bash
-docker run --rm -v acme-salary-data:/data \
-  -e DATABASE_PATH=/data/salary.sqlite acme-salary \
-  npx tsx packages/server/src/seed/run-seed.ts
-```
+Two details that are easy to get wrong and are handled here:
 
-> The `Dockerfile` is written for `linux/amd64`, where better-sqlite3 ships a prebuilt
-> binary; the build toolchain is installed in case it has to compile, and is kept out of
-> the runtime image. **It has not been built on this machine** — Docker is not installed
-> here — so treat it as reviewed-not-run. The host and Render paths below were both run.
+- **`/data` is created and chowned to `node` in the image, before `VOLUME` is declared.**
+  Docker seeds a fresh named volume from the image's directory; a `/data` that only
+  appears at mount time is owned by root, and the unprivileged runtime user cannot create
+  the database in it.
+- **The volume is not optional.** Without it SQLite writes into the container's writable
+  layer and every salary record is discarded when the container is replaced.
+
+> **Not built on this machine.** There is no container runtime installed here — no Docker,
+> no Podman, no Colima — so this file has been written and reviewed but never executed.
+> Two defects were found by reading it that would have failed on first run (the seed
+> needed `tsx`, which the runtime image does not install; and `/data` was unwritable under
+> `USER node`), and both are fixed above. Treat the rest as reviewed-not-run. The host and
+> Render paths below were both executed and verified.
 
 ## Render
 

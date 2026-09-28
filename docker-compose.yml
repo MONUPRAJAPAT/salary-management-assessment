@@ -1,0 +1,22 @@
+# docker compose up --build   →  http://localhost:4000
+#
+# Seed once, the first time:
+#   docker compose run --rm app node packages/server/dist/seed.js
+
+services:
+  app:
+    build: .
+    ports:
+      - '4000:4000'
+    volumes:
+      # SQLite needs a persistent path. Without this the database is recreated empty
+      # every time the container is replaced.
+      - salary-data:/data
+    environment:
+      NODE_ENV: production
+      PORT: '4000'
+      DATABASE_PATH: /data/salary.sqlite
+    restart: unless-stopped
+
+volumes:
+  salary-data:
