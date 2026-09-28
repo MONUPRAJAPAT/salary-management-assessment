@@ -23,6 +23,7 @@ import { count } from '../../lib/format';
 import { useDirectoryFilters } from './useDirectoryFilters';
 import { EmployeeTable } from './EmployeeTable';
 import { NewEmployeeModal } from '../employee/NewEmployeeModal';
+import { TableSkeleton } from '../../components/TableSkeleton';
 
 export function DirectoryPage() {
   const { filters, update, toggleSort, clear, activeFilterCount, params } = useDirectoryFilters();
@@ -166,19 +167,24 @@ export function DirectoryPage() {
       </Card>
 
       <Card withBorder padding={0} radius="md">
+        {/* Loading is handled below with skeleton rows rather than by QueryState's
+            spinner, so the table keeps its shape while the first page arrives. */}
         <QueryState
-          loading={employees.isLoading}
           error={employees.error}
           empty={employees.data?.items.length === 0}
           emptyMessage="No employees match these filters."
           height={260}
         >
-          <EmployeeTable
-            employees={employees.data?.items ?? []}
-            sort={filters.sort ?? 'name'}
-            direction={filters.direction ?? 'asc'}
-            onSort={toggleSort}
-          />
+          {employees.isLoading ? (
+            <TableSkeleton />
+          ) : (
+            <EmployeeTable
+              employees={employees.data?.items ?? []}
+              sort={filters.sort ?? 'name'}
+              direction={filters.direction ?? 'asc'}
+              onSort={toggleSort}
+            />
+          )}
         </QueryState>
       </Card>
 

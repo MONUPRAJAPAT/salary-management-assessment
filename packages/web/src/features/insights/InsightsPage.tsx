@@ -10,7 +10,7 @@ import {
   Text,
   Title,
 } from '@mantine/core';
-import { IconAlertTriangle } from '@tabler/icons-react';
+import { IconAlertTriangle, IconCash, IconScale, IconUsers } from '@tabler/icons-react';
 import { LEVELS, formatLevel } from '@acme/shared';
 import { useOverview, useReferenceData } from '../../api/queries';
 import { StatCard } from '../../components/StatCard';
@@ -103,6 +103,7 @@ export function InsightsPage() {
       <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="md">
         <StatCard
           label="Headcount"
+          icon={IconUsers}
           value={data ? count(data.headcount) : '—'}
           loading={overview.isLoading}
           detail={
@@ -113,12 +114,14 @@ export function InsightsPage() {
         />
         <StatCard
           label="Annual payroll"
+          icon={IconCash}
           value={data ? money(data.annualPayroll) : '—'}
           loading={overview.isLoading}
           hint="Sum of every current base salary, converted to the base currency at the pinned exchange rates. Base salary only — no bonus, equity or employer costs."
         />
         <StatCard
           label="Median salary"
+          icon={IconScale}
           value={data ? money(data.medianSalary) : '—'}
           loading={overview.isLoading}
           hint="The middle salary when everyone is lined up in order. Reported rather than the mean, because a handful of executive salaries pull an average somewhere nobody is actually paid."
@@ -126,6 +129,8 @@ export function InsightsPage() {
         />
         <StatCard
           label="Outside band"
+          icon={IconAlertTriangle}
+          accent={data && data.belowBandCount > 0 ? 'critical' : 'neutral'}
           value={data ? count(data.belowBandCount + data.aboveBandCount) : '—'}
           loading={overview.isLoading}
           hint="Employees paid outside the salary band for their level and country."

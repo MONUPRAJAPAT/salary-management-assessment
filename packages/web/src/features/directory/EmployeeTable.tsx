@@ -51,7 +51,9 @@ interface EmployeeTableProps {
 export function EmployeeTable({ employees, sort, direction, onSort }: EmployeeTableProps) {
   return (
     <Table.ScrollContainer minWidth={860}>
-      <Table highlightOnHover verticalSpacing="xs" horizontalSpacing="md">
+      {/* The header sticks below the 60px app bar, so column meaning survives scrolling
+          a full page of 100 rows — which is the whole point of a dense table. */}
+      <Table stickyHeader stickyHeaderOffset={60} horizontalSpacing="md">
         <Table.Thead>
           <Table.Tr>
             {COLUMNS.map((column) => (

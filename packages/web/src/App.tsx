@@ -1,15 +1,36 @@
-import { AppShell, Badge, Burger, Group, NavLink, Text, Title } from '@mantine/core';
+import {
+  AppShell,
+  Badge,
+  Burger,
+  Group,
+  NavLink,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconChartHistogram, IconUsers } from '@tabler/icons-react';
+import { IconChartHistogram, IconCoins, IconUsers } from '@tabler/icons-react';
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { InsightsPage } from './features/insights/InsightsPage';
 import { DirectoryPage } from './features/directory/DirectoryPage';
 import { EmployeePage } from './features/employee/EmployeePage';
+import { ThemeToggle } from './components/ThemeToggle';
 import { useReferenceData } from './api/queries';
 
 const NAVIGATION = [
-  { to: '/insights', label: 'Insights', icon: IconChartHistogram },
-  { to: '/employees', label: 'Employees', icon: IconUsers },
+  {
+    to: '/insights',
+    label: 'Insights',
+    description: 'How the org pays',
+    icon: IconChartHistogram,
+  },
+  {
+    to: '/employees',
+    label: 'Employees',
+    description: 'Find and manage people',
+    icon: IconUsers,
+  },
 ];
 
 export function App() {
@@ -19,41 +40,70 @@ export function App() {
 
   return (
     <AppShell
-      header={{ height: 56 }}
-      navbar={{ width: 220, breakpoint: 'sm', collapsed: { mobile: !opened } }}
+      header={{ height: 60 }}
+      navbar={{ width: 240, breakpoint: 'sm', collapsed: { mobile: !opened } }}
       padding="lg"
     >
       <AppShell.Header>
         <Group h="100%" px="md" justify="space-between" wrap="nowrap">
           <Group gap="sm" wrap="nowrap">
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-            <Title order={4} fw={600}>
-              ACME{' '}
-              <Text span c="dimmed" fw={400}>
+            <ThemeIcon size={34} radius="md" variant="light">
+              <IconCoins size={20} />
+            </ThemeIcon>
+            <div>
+              <Title order={4} lh={1.1}>
+                ACME
+              </Title>
+              <Text size="xs" c="dimmed" lh={1.1}>
                 Salary Management
               </Text>
-            </Title>
+            </div>
           </Group>
-          {reference.data && (
-            <Badge variant="light" color="gray" visibleFrom="sm">
-              {reference.data.countries.length} countries · rates as of {reference.data.fx.asOf}
-            </Badge>
-          )}
+
+          <Group gap="sm" wrap="nowrap">
+            {reference.data && (
+              <Badge variant="light" color="gray" visibleFrom="md">
+                {reference.data.countries.length} countries · rates {reference.data.fx.asOf}
+              </Badge>
+            )}
+            <ThemeToggle />
+          </Group>
         </Group>
       </AppShell.Header>
 
       <AppShell.Navbar p="sm">
-        {NAVIGATION.map((item) => (
-          <NavLink
-            key={item.to}
-            component={Link}
-            to={item.to}
-            label={item.label}
-            leftSection={<item.icon size={18} />}
-            active={location.pathname.startsWith(item.to)}
-            onClick={close}
-          />
-        ))}
+        <Stack gap={2}>
+          <Text
+            size="xs"
+            fw={600}
+            c="dimmed"
+            tt="uppercase"
+            px="xs"
+            pb={6}
+            style={{ letterSpacing: 0.5 }}
+          >
+            Workspace
+          </Text>
+          {NAVIGATION.map((item) => (
+            <NavLink
+              key={item.to}
+              component={Link}
+              to={item.to}
+              label={item.label}
+              description={item.description}
+              leftSection={<item.icon size={18} />}
+              active={location.pathname.startsWith(item.to)}
+              onClick={close}
+              variant="light"
+            />
+          ))}
+        </Stack>
+
+        <Text size="xs" c="dimmed" mt="auto" px="xs" pb="xs">
+          Every figure comparable across countries is converted to{' '}
+          {reference.data?.fx.baseCurrency ?? 'USD'} at pinned rates.
+        </Text>
       </AppShell.Navbar>
 
       <AppShell.Main>
