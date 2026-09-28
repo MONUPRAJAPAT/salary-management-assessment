@@ -12,13 +12,18 @@ COPY packages/shared/package.json packages/shared/
 COPY packages/server/package.json packages/server/
 COPY packages/web/package.json packages/web/
 
+# Scoped to the server workspace. A bare `npm ci --omit=dev` at the root installs every
+# workspace's production dependencies, which drags the entire front end into the runtime
+# image — 143 MB of icon components alone, to serve static files that need no modules at
+# all. Scoping takes node_modules from 250 MB to 29 MB.
+#
 # better-sqlite3 ships prebuilt binaries for linux/amd64 and linux/arm64, so this
 # normally installs without compiling. The toolchain is here for the case where it has
 # to, and it stays in this stage — only node_modules is copied forward.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends python3 make g++ \
  && rm -rf /var/lib/apt/lists/* \
- && npm ci --omit=dev
+ && npm ci --omit=dev --workspace @acme/server --include-workspace-root
 
 # ---------------------------------------------------------------- build
 FROM node:22-bookworm-slim AS build

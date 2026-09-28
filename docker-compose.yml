@@ -7,7 +7,10 @@ services:
   app:
     build: .
     ports:
-      - '4000:4000'
+      # Host port is overridable, because 4000 is a popular port and a reviewer who
+      # already has something on it should not have to edit this file:
+      #   HOST_PORT=4500 docker compose up
+      - '${HOST_PORT:-4000}:4000'
     volumes:
       # SQLite needs a persistent path. Without this the database is recreated empty
       # every time the container is replaced.

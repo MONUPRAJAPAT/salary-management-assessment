@@ -63,12 +63,21 @@ Two details that are easy to get wrong and are handled here:
 - **The volume is not optional.** Without it SQLite writes into the container's writable
   layer and every salary record is discarded when the container is replaced.
 
-> **Not built on this machine.** There is no container runtime installed here — no Docker,
-> no Podman, no Colima — so this file has been written and reviewed but never executed.
-> Two defects were found by reading it that would have failed on first run (the seed
-> needed `tsx`, which the runtime image does not install; and `/data` was unwritable under
-> `USER node`), and both are fixed above. Treat the rest as reviewed-not-run. The host and
-> Render paths below were both executed and verified.
+Built and run. On Docker 29.8 / arm64 the image is **391 MB** and the container reports
+healthy in a few seconds; the seed writes 10,000 employees into the volume as the
+unprivileged `node` user, and the data survives `docker compose restart`.
+
+Three defects were found and fixed in the course of getting there, two by reading it and
+one only by building it:
+
+- The seed needed `tsx`, which the runtime image does not install. It is now compiled to
+  `dist/seed.js` by the same build and runs under plain `node`.
+- `/data` was unwritable under `USER node`, because `VOLUME` was declared for a directory
+  that did not exist in the image.
+- **`npm ci --omit=dev` at the workspace root installed the entire front end** — 143 MB of
+  icon components and 35 MB of Mantine, into an image whose only job is to serve those
+  same components as pre-built static files. Scoping the install to the server workspace
+  took `node_modules` from 250 MB to 29 MB and the image from 637 MB to 391 MB.
 
 ## Render
 
