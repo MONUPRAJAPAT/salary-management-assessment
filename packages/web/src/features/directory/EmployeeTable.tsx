@@ -48,12 +48,17 @@ interface EmployeeTableProps {
   onSort: (field: string) => void;
 }
 
+/**
+ * No stickyHeader on this table. Table.ScrollContainer wraps it in a ScrollArea, which
+ * creates its own positioning context: `position: sticky` resolves against that container
+ * rather than the page, and `stickyHeaderOffset` then pushes the header *down* inside it —
+ * directly over the first rows, hiding them. A sticky header would mean taking the table
+ * out of the ScrollContainer, and horizontal scrolling on narrow screens matters more.
+ */
 export function EmployeeTable({ employees, sort, direction, onSort }: EmployeeTableProps) {
   return (
     <Table.ScrollContainer minWidth={860}>
-      {/* The header sticks below the 60px app bar, so column meaning survives scrolling
-          a full page of 100 rows — which is the whole point of a dense table. */}
-      <Table stickyHeader stickyHeaderOffset={60} horizontalSpacing="md">
+      <Table horizontalSpacing="md">
         <Table.Thead>
           <Table.Tr>
             {COLUMNS.map((column) => (
