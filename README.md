@@ -9,6 +9,29 @@ Two jobs, weighted equally:
 - **An answer engine** — _"what do we pay a Senior Engineer in Germany versus India?"_,
   _"is anyone paid below band?"_, _"do we have a pay gap in Sales?"_ — answered in seconds.
 
+## ▶ Live demo
+
+### **https://acme-salary-management-avhe.onrender.com**
+
+> **The first request takes about a minute.** It is on Render's free tier, which stops the
+> instance after roughly 15 minutes of inactivity and starts a new one on the next request
+> — a measured 54 s when this README was written. Everything after that is fast. It is not
+> broken; it is asleep.
+
+The free tier also has **no persistent disk**, so the app generates its 10,000-employee
+dataset at startup whenever it finds an empty database — deterministic, and 532 ms, so
+every visitor sees the identical organisation. Anything you add or change lasts for as long
+as that instance lives and is gone when it next sleeps.
+
+That is a deliberate trade, not an oversight: the alternative is a paid instance for an
+application nobody is storing real payroll in. `render-persistent.yaml` in this repository
+is the same deployment with a real disk, for when that stops being true. See
+[`docs/deployment.md`](docs/deployment.md).
+
+**Worth trying:** filter the directory to India and _below band_, sort by compa-ratio, and
+follow the worst one through to their profile. Then look at **Insights → Pay equity**: the
+organisation-wide gap is 6.55%, while the within-level gaps are close to zero.
+
 ---
 
 ## Running it
