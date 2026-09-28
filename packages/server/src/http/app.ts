@@ -2,7 +2,8 @@ import express, { type Express } from 'express';
 import compression from 'compression';
 import cors from 'cors';
 import { existsSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { Kysely } from 'kysely';
 import type { Database } from '../db/types';
 import { ReferenceRepository } from '../repositories/reference.repository';
@@ -14,6 +15,21 @@ export interface AppOptions {
   db: Kysely<Database>;
   /** Directory holding the built web bundle. Omitted in tests and in development. */
   webDistPath?: string;
+}
+
+/**
+ * Resolves the web bundle relative to this module rather than to the working directory.
+ *
+ * `npm start` runs the server with its cwd set to packages/server, but a host's build
+ * config is naturally written relative to the repository root — so a cwd-relative path
+ * silently points at packages/server/packages/web/dist and nothing is served. Anchoring
+ * to the module makes the default correct wherever it is started from, and absolute
+ * paths (as the Docker image uses) still win.
+ */
+function resolveWebDist(webDistPath: string): string {
+  if (isAbsolute(webDistPath)) return webDistPath;
+  const moduleDirectory = dirname(fileURLToPath(import.meta.url));
+  return resolve(moduleDirectory, '..', webDistPath);
 }
 
 export function createApp({ db, webDistPath }: AppOptions): Express {
@@ -41,12 +57,19 @@ export function createApp({ db, webDistPath }: AppOptions): Express {
   app.use('/api', notFoundHandler);
 
   if (webDistPath) {
-    const root = resolve(webDistPath);
+    const root = resolveWebDist(webDistPath);
     if (existsSync(root)) {
       app.use(express.static(root));
       // Anything not matched above is a client-side route: hand it the SPA shell and let
       // React Router decide. Registered after /api so a wrong API path still 404s as JSON.
       app.use((_req, res) => res.sendFile(join(root, 'index.html')));
+    } else {
+      // Loudly, because the failure mode is a perfectly healthy API serving no UI at all:
+      // /api/health passes, the deploy goes green, and every page is a bare 404.
+      console.error(
+        `  WEB_DIST_PATH is set to "${webDistPath}" but nothing exists at ${root}.\n` +
+          `  The API will run and NO user interface will be served. Run "npm run build" first.`,
+      );
     }
   }
 

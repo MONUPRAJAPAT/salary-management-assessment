@@ -14,7 +14,10 @@ services:
     name: acme-salary-management
     runtime: node
     plan: free
-    buildCommand: npm ci && npm run build
+    # --include=dev is required, not optional. Render sets NODE_ENV=production for the
+    # whole service, and npm ci then skips devDependencies — which is where vite and tsup
+    # live. Without this the build fails with "vite: not found".
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
     envVars:
@@ -25,7 +28,5 @@ services:
       # /tmp is reliably writable on an instance with no mounted disk.
       - key: DATABASE_PATH
         value: /tmp/salary.sqlite
-      - key: WEB_DIST_PATH
-        value: ./packages/web/dist
       - key: SEED_ON_BOOT
         value: 'true'

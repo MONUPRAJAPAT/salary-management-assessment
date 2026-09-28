@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import request from 'supertest';
 import type { Express } from 'express';
 import {
@@ -396,6 +396,25 @@ describe('analytics endpoints', () => {
   it('applies filters to every view', async () => {
     const response = await request(app).get('/api/analytics/overview?country=US').expect(200);
     expect(response.body.headcount).toBe(EXPECTED.byCountry.US.headcount);
+  });
+});
+
+describe('serving the web bundle', () => {
+  it('complains loudly when the bundle is missing instead of quietly serving no UI', () => {
+    // The failure mode this guards against: /api/health passes, the deploy goes green,
+    // and every page is a bare 404 because the path was resolved against the wrong
+    // directory. That shipped once; it should not ship silently again.
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    createApp({ db: handle.db, webDistPath: './nowhere/at/all' });
+
+    expect(error).toHaveBeenCalledWith(expect.stringContaining('NO user interface'));
+    error.mockRestore();
+  });
+
+  it('still serves the API when the bundle is missing', async () => {
+    const withoutUi = createApp({ db: handle.db, webDistPath: './nowhere/at/all' });
+    await request(withoutUi).get('/api/health').expect(200);
   });
 });
 
