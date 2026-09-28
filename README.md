@@ -125,16 +125,17 @@ two statements of "current compensation" select the same record for every employ
 
 ## Documentation
 
-|                                                        |                                                                                          |
-| ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| [`docs/requirements.md`](docs/requirements.md)         | The one-pager, written before any code — including what is deliberately left out         |
-| [`docs/architecture.md`](docs/architecture.md)         | Diagrams, layering rules, data model, request path                                       |
-| [`docs/decisions/`](docs/decisions/)                   | Six ADRs for the choices that shape everything downstream                                |
-| [`docs/performance.md`](docs/performance.md)           | Measurements, the three optimisations, and what was left alone                           |
-| [`docs/trade-offs.md`](docs/trade-offs.md)             | The decisions with real alternatives, and what each costs                                |
-| [`CLAUDE.md`](CLAUDE.md)                               | The standing instructions AI tools work under in this repository                         |
-| [`docs/ai-collaboration.md`](docs/ai-collaboration.md) | How AI was used — the instructions it worked under, and where its first answer was wrong |
-| [`docs/deployment.md`](docs/deployment.md)             | Running it as one container or one process                                               |
+|                                                                |                                                                                          |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [`docs/requirements.md`](docs/requirements.md)                 | The one-pager, written before any code — including what is deliberately left out         |
+| [`docs/architecture.md`](docs/architecture.md)                 | Diagrams, layering rules, data model, request path                                       |
+| [`docs/implementation-guide.md`](docs/implementation-guide.md) | Complete walkthrough of every part of the system and why it is built that way            |
+| [`docs/decisions/`](docs/decisions/)                           | Six ADRs for the choices that shape everything downstream                                |
+| [`docs/performance.md`](docs/performance.md)                   | Measurements, the three optimisations, and what was left alone                           |
+| [`docs/trade-offs.md`](docs/trade-offs.md)                     | The decisions with real alternatives, and what each costs                                |
+| [`CLAUDE.md`](CLAUDE.md)                                       | The standing instructions AI tools work under in this repository                         |
+| [`docs/ai-collaboration.md`](docs/ai-collaboration.md)         | How AI was used — the instructions it worked under, and where its first answer was wrong |
+| [`docs/deployment.md`](docs/deployment.md)                     | Running it as one container or one process                                               |
 
 ---
 
