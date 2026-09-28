@@ -7,7 +7,7 @@ One TypeScript monorepo, three packages, one deployable process.
 ```mermaid
 flowchart TB
     subgraph browser["Browser"]
-        UI["React 19 + Mantine<br/>Directory · Profile · Insights"]
+        UI["React 18 + Mantine 7<br/>Directory · Profile · Insights"]
         RQ["TanStack Query<br/>cache + request state"]
         UI <--> RQ
     end
