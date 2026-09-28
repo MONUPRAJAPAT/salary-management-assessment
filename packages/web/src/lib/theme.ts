@@ -1,4 +1,4 @@
-import { createTheme, type MantineColorsTuple } from '@mantine/core';
+import { createTheme, rem, type MantineColorsTuple } from '@mantine/core';
 
 /**
  * A ten-step brand scale rather than a Mantine default, so the primary colour is a
@@ -55,7 +55,19 @@ export const theme = createTheme({
     ActionIcon: { defaultProps: { radius: 'md' } },
     TextInput: { defaultProps: { radius: 'md' } },
     Select: { defaultProps: { radius: 'md' } },
-    MultiSelect: { defaultProps: { radius: 'md' } },
+    /**
+     * A MultiSelect grows a row taller with every pill it has to fit, so a filter bar of
+     * six of them jumps around as you narrow a search — the control you are about to
+     * click moves out from under the cursor.
+     *
+     * Capping the pill area bounds that to a single step and then scrolls. Combined with
+     * `hidePickedOptions` the dropdown also shrinks as you select, so picking several
+     * values stays a small, stable interaction.
+     */
+    MultiSelect: {
+      defaultProps: { radius: 'md', hidePickedOptions: true },
+      styles: { input: { maxHeight: rem(66), overflowY: 'auto' as const } },
+    },
     NumberInput: { defaultProps: { radius: 'md' } },
   },
 });

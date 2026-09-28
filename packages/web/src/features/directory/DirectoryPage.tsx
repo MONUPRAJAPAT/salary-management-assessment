@@ -116,7 +116,6 @@ export function DirectoryPage() {
             onChange={(value) => update({ country: value })}
             searchable
             clearable
-            hidePickedOptions
           />
           <MultiSelect
             label="Department"
@@ -126,7 +125,6 @@ export function DirectoryPage() {
             onChange={(value) => update({ department: value })}
             searchable
             clearable
-            hidePickedOptions
           />
           <MultiSelect
             label="Level"
@@ -135,7 +133,6 @@ export function DirectoryPage() {
             value={filters.level ?? []}
             onChange={(value) => update({ level: value })}
             clearable
-            hidePickedOptions
           />
           <MultiSelect
             label="Band position"
@@ -147,7 +144,6 @@ export function DirectoryPage() {
             value={filters.bandPosition ?? []}
             onChange={(value) => update({ bandPosition: value })}
             clearable
-            hidePickedOptions
           />
           <MultiSelect
             label="Status"
@@ -156,7 +152,6 @@ export function DirectoryPage() {
             value={filters.status ?? []}
             onChange={(value) => update({ status: value })}
             clearable
-            hidePickedOptions
           />
         </SimpleGrid>
 
