@@ -26,7 +26,44 @@ The order of work was deliberate, and it is visible in the commit history:
 4. **Measure before optimising, and after.** No performance claim in this repository was
    written before it was measured. One that was is described below.
 
-## 2. Where AI's first answer was wrong, and what caught it
+## 2. The instructions the AI actually worked under
+
+The brief was the PDF and the email. Beyond that, the direction did not take the form of
+a long series of prompts — it took the form of **documents committed to the repository
+before the code was written**, which is a more reliable way to steer an agent than
+re-stating rules in every message.
+
+Three artifacts did that work, in order of how much they constrained the output:
+
+1. **`docs/requirements.md`** — committed first, before any code. Its §4 ("Explicitly out
+   of scope — and why") is the single most useful thing in this repository for keeping an
+   AI on task. The default behaviour of a capable model is to build more; a written,
+   reasoned exclusion list is something to point at.
+2. **`docs/decisions/`** — six ADRs, committed second. "Money is integer minor units",
+   "compensation is append-only", "aggregate in SQL with currency normalised before
+   grouping". Each of those constrains hundreds of later lines. A model given those rules
+   writes materially different code from one given "build a salary app".
+3. **`CLAUDE.md`** — the standing brief, read automatically at the start of every session.
+   It restates the domain invariants, the layering rules, the testing conventions, and the
+   explicit instruction not to state a performance figure that has not been measured. It
+   exists so the rules survive past the session that decided them.
+
+The prompts that mattered beyond those were corrective rather than generative, and they
+were mostly one of four shapes:
+
+| Shape                         | Example from this build                          | What it produced                                                            |
+| ----------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- |
+| Name what a test must _prove_ | "prove the org chart has no cycles"              | Found a real cycle among VPs, and that nobody was at the top                |
+| Refuse a plausible number     | "measure it, don't assert it"                    | Caught an invented "~11 ms" that was really 33 ms                           |
+| Ask why something passed      | "that CSV test passes — is it proving anything?" | It wasn't; the field had no comma in it                                     |
+| Delete rather than extend     | —                                                | `employee.helpers.ts`, and a `UNIQUE` constraint that fought its own design |
+
+**The general lesson.** Prompting an agent well is mostly not about phrasing. It is about
+putting the constraints somewhere the agent reads every time, and making the important
+rules enforceable by something other than the agent's attention — a CHECK constraint, a
+strict `tsconfig`, a shared Zod schema, a test that walks the structure.
+
+## 3. Where AI's first answer was wrong, and what caught it
 
 This is the useful part. In every case below the mistake was caught by something
 mechanical — a test, a constraint, a profiler — rather than by re-reading the code.
@@ -52,7 +89,7 @@ The last two are worth separating out. Both were places where the code was **cor
 still wrong — one slow, one carrying a fabricated number. Correctness review would have
 passed both.
 
-## 3. Where AI was genuinely quick
+## 4. Where AI was genuinely quick
 
 - **Breadth of test cases.** Boundary conditions — a salary exactly at band minimum, an
   even-sized group's median, JPY's zero exponent, an employee with no compensation record —
@@ -67,7 +104,7 @@ passed both.
 - **Plumbing.** CSV escaping, pagination arithmetic, query-string parsing, loading and
   error states. Necessary, uninteresting, easy to get subtly wrong by hand.
 
-## 4. Where it needed to be directed
+## 5. Where it needed to be directed
 
 - **Scope.** The strong default is to build more. The requirements document's "out of
   scope" section was written first specifically to have something to push back with.
@@ -84,7 +121,7 @@ passed both.
   two y-axes, which invites the reader to see a relationship the axis ranges invented. It
   is two charts here.
 
-## 5. What I would tell someone starting the same exercise
+## 6. What I would tell someone starting the same exercise
 
 1. **Write the requirements and the ADRs first.** Not for the reviewer — for the AI. A
    model given "money is integer minor units, compensation is append-only, aggregate in
